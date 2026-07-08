@@ -26,7 +26,7 @@ self-contained Python package for Betterleaks.
 - [Roadmap](roadmap.md): follow-up features after the first working release.
 - [AI handoff](ai-handoff.md): compact context for future AI agents and human
   maintainers.
-- [Docker E2E](https://github.com/88roy88/pybetterleaks/tree/main/e2e):
+- [Docker E2E](https://github.com/roymezan/pybetterleaks/tree/main/e2e):
   Docker end-to-end tests, fixtures, and runner.
 
 ## Current Status

@@ -1,4 +1,4 @@
-module github.com/88roy88/pybetterleaks/bridge
+module github.com/roymezan/pybetterleaks/bridge
 
 go 1.25.0
 

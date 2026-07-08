@@ -1,9 +1,9 @@
 site_name: PyBetterleaks
 site_description: Python-native Betterleaks bindings with bundled platform wheels.
 site_author: Roy Mezan
-site_url: https://88roy88.github.io/pybetterleaks/
-repo_name: 88roy88/pybetterleaks
-repo_url: https://github.com/88roy88/pybetterleaks
+site_url: https://roymezan.github.io/pybetterleaks/
+repo_name: roymezan/pybetterleaks
+repo_url: https://github.com/roymezan/pybetterleaks
 edit_uri: blob/main/docs/
 
 theme:

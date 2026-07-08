@@ -4,7 +4,7 @@
 [![Python](https://img.shields.io/pypi/pyversions/pybetterleaks.svg)](https://pypi.org/project/pybetterleaks/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Wheels](https://img.shields.io/badge/wheels-self--contained-success.svg)](#platforms)
-[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-teal.svg)](https://88roy88.github.io/pybetterleaks/)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-teal.svg)](https://roymezan.github.io/pybetterleaks/)
 
 Python-native Betterleaks. No CLI dance. No Go toolchain in your Docker image.
 No runtime `subprocess`.

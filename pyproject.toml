@@ -29,9 +29,9 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/88roy88/pybetterleaks"
-Repository = "https://github.com/88roy88/pybetterleaks"
-Issues = "https://github.com/88roy88/pybetterleaks/issues"
+Homepage = "https://github.com/roymezan/pybetterleaks"
+Repository = "https://github.com/roymezan/pybetterleaks"
+Issues = "https://github.com/roymezan/pybetterleaks/issues"
 
 [dependency-groups]
 dev = [
