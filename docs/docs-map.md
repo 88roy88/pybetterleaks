@@ -24,6 +24,8 @@ self-contained Python package for Betterleaks.
   PyPI releases.
 - [Troubleshooting](troubleshooting.md): common local build and install issues.
 - [Roadmap](roadmap.md): follow-up features after the first working release.
+- [v0.2 plan](v0.2-plan.md): config API, benchmarks, release hardening, and
+  acceptance criteria for the next minor release.
 - [AI handoff](ai-handoff.md): compact context for future AI agents and human
   maintainers.
 - [Docker E2E](https://github.com/roymezan/pybetterleaks/tree/main/e2e):

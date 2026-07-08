@@ -11,10 +11,17 @@
 
 ## v0.2
 
-- Better native bridge coverage of Betterleaks config options.
+- Typed `BetterleaksConfig` and `Rule` dataclasses.
+- Programmatic config serialization for `scan_text` and `scan_dir`.
+- Better native bridge coverage of Betterleaks config options without breaking
+  the v0.1 JSON ABI.
 - Native scan tests against a curated fake-secret fixture suite.
+- Reproducible benchmarks against the Betterleaks CLI baseline.
 - Linux arm64 wheels if CI capacity permits.
 - Release artifact checksums.
+
+See [v0.2 plan](v0.2-plan.md) for the implementation checklist and acceptance
+criteria.
 
 ## v0.3
 
@@ -30,4 +37,3 @@
 - SBOM generation.
 - Artifact signing.
 - Benchmarks against Betterleaks CLI and subprocess wrappers.
-
