@@ -171,7 +171,7 @@ Target wheel matrix:
 | macOS x86_64 | macOS 11+ target |
 | Windows amd64 | win_amd64 target |
 | Linux arm64 | future CI capacity |
-| Alpine/musllinux | v0.2 blocker, not published yet |
+| Alpine/musllinux | unsupported in v0.2; no wheels published |
 
 The Alpine canary currently fails while loading the Go shared library through
 Python `ctypes`:
@@ -180,9 +180,11 @@ Python `ctypes`:
 initial-exec TLS resolves to dynamic definition
 ```
 
-The same failure reproduces with Go `c-shared` and a Go `c-archive` linked into
-a musl shared object, so the project will not publish musllinux wheels until
-that loader path is solved.
+This is a Go + musl shared-library loader limitation, not a missing Docker
+package. The same failure reproduces with Go `c-shared` and a Go `c-archive`
+linked into a musl shared object, so the project will not publish musllinux
+wheels until that loader path is fixed. Use Debian/Ubuntu-style glibc Python
+images, such as `python:3.12-slim`, for supported Linux runtime images.
 
 ## Local Development
 

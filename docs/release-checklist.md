@@ -43,8 +43,9 @@ claimed target platforms.
 
 ## Musllinux Gate
 
-Musllinux/Alpine is in v0.2 scope but is not a supported wheel target until the
-Alpine canary passes without `LD_PRELOAD` or user-side launcher changes.
+Musllinux/Alpine is explicitly unsupported in v0.2 and must not be published as
+a wheel target until the Alpine canary passes without `LD_PRELOAD`, wrapper
+launchers, or user-side runtime changes.
 
 Current blocker:
 

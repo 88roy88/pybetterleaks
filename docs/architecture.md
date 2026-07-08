@@ -161,10 +161,11 @@ Alpine currently fails while loading the Go shared library through Python
 initial-exec TLS resolves to dynamic definition
 ```
 
-The same error reproduces when Betterleaks is built as a Go `c-archive` and
-linked into a musl shared object. Until that loader path is solved,
-musllinux/Alpine remains a documented v0.2 blocker rather than a published
-wheel target.
+This is a Go + musl shared-library loader limitation, not a missing Alpine
+package. The same error reproduces when Betterleaks is built as a Go
+`c-archive` and linked into a musl shared object. Until that loader path is
+fixed, musllinux/Alpine is unsupported and must remain absent from the published
+wheel matrix.
 
 ## Future Architecture
 

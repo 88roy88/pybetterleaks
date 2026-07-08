@@ -151,8 +151,8 @@ FROM python:3.12-slim
 RUN pip install --only-binary=:all: pybetterleaks
 ```
 
-Alpine/musllinux remains blocked by the current Go shared library loader
-failure:
+Alpine/musllinux is unsupported in v0.2 and remains blocked by the current Go +
+musl shared-library loader failure:
 
 ```text
 initial-exec TLS resolves to dynamic definition

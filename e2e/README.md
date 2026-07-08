@@ -36,15 +36,15 @@ There is also an Alpine canary:
 bash e2e/run-alpine.sh
 ```
 
-That canary currently exposes a known musl loader blocker for Go libraries
-loaded through Python `ctypes`:
+That canary currently exposes a known Go + musl loader blocker for Go shared
+libraries loaded through Python `ctypes`:
 
 ```text
 initial-exec TLS resolves to dynamic definition
 ```
 
-Keep it as a concrete reproduction for musllinux work. Do not treat Alpine as a
-supported runtime until that canary passes without runtime launch workarounds.
+Keep it as a concrete reproduction for musllinux work. Alpine/musllinux is not
+a supported runtime until that canary passes without runtime launch workarounds.
 
 The fixtures use fake secrets only. They are shaped to trigger Betterleaks rules
 without representing real credentials.

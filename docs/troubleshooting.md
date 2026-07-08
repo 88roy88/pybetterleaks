@@ -78,8 +78,9 @@ This has been reproduced with:
 - Go `-buildmode=c-archive` linked into a musl shared object
 - Python `ctypes` loading the library after process startup
 
-Do not publish musllinux wheels until this canary passes without `LD_PRELOAD`,
-wrapper launchers, or runtime subprocesses.
+This is a Go + musl shared-library loader limitation, not a missing Alpine
+package. Do not publish musllinux wheels until this canary passes without
+`LD_PRELOAD`, wrapper launchers, or runtime subprocesses.
 
 ## Async Cancellation Does Not Stop Instantly
 

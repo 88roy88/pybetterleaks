@@ -31,6 +31,8 @@ self-contained Python package for Betterleaks.
   features.
 - [v0.2 plan](v0.2-plan.md): config API, async cancellation, benchmarks,
   release hardening, and acceptance criteria.
+- [v0.3 plan](v0.3-plan.md): Git workflows, streaming APIs, config coverage,
+  and release hardening.
 - [AI handoff](ai-handoff.md): compact context for future AI agents and human
   maintainers.
 - [Docker E2E](https://github.com/roymezan/pybetterleaks/tree/main/e2e):
