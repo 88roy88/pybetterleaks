@@ -20,11 +20,21 @@ jobs:
       id-token: write
 
     steps:
+      - uses: actions/checkout@v4
+
       - uses: actions/download-artifact@v4
         with:
           path: dist
           pattern: wheels-*
           merge-multiple: true
+
+      - name: Generate checksums
+        run: python scripts/checksums.py dist --output ../release/SHA256SUMS
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-checksums
+          path: release/SHA256SUMS
 
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:

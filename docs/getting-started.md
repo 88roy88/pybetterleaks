@@ -2,7 +2,7 @@
 
 ## Install
 
-After the first wheel release is published:
+After wheels are published:
 
 ```bash
 pip install pybetterleaks
@@ -16,7 +16,7 @@ pip install --only-binary=:all: pybetterleaks
 
 ## Local Repository Build
 
-Until the first PyPI release is published, build the native library locally:
+Build the native bridge locally:
 
 ```bash
 uv sync --all-extras --dev
@@ -48,7 +48,29 @@ Betterleaks: v1.6.1
 age-secret-key: REDACTED
 ```
 
-The example secret is intentionally fake.
+The example secret is synthetic.
+
+## Typed Config
+
+```python
+from pybetterleaks import BetterleaksConfig, Rule, scan_text
+
+config = BetterleaksConfig(
+    rules=[
+        Rule(
+            id="internal-token",
+            description="Internal service token",
+            regex=r"INTERNAL_[A-Z0-9]{16}",
+            keywords=["INTERNAL_"],
+        )
+    ]
+)
+
+result = scan_text("INTERNAL_0123456789ABCDEF", config=config)
+```
+
+Use `config_path=".betterleaks.toml"` when you already have a TOML config file.
+Do not pass both `config` and `config_path`.
 
 ## Directory Scans
 
@@ -64,6 +86,23 @@ else:
     for error in result.errors:
         print(f"{error.code}: {error.message}")
 ```
+
+## Async Scans
+
+```python
+import asyncio
+from pybetterleaks import scan_dir_async
+
+async def main() -> None:
+    result = await scan_dir_async(".", timeout_seconds=10)
+    print(result.ok, len(result.findings))
+
+asyncio.run(main())
+```
+
+The async API uses an executor under the hood. When the Python task is
+cancelled, PyBetterleaks sends a cancellation request to the Go bridge for the
+active scan request id.
 
 ## Docker
 

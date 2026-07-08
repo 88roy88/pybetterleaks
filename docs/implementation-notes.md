@@ -15,7 +15,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pybetterleaks"
-version = "0.1.0"
+version = "0.2.0"
 description = "Native Python bindings for Betterleaks"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -29,6 +29,7 @@ where = ["python"]
 
 [tool.setuptools.package-data]
 pybetterleaks = [
+  "py.typed",
   "native/*.so",
   "native/*.dylib",
   "native/*.dll",
@@ -46,11 +47,11 @@ universal pure Python wheel.
 Potential wheel target:
 
 ```text
-pybetterleaks-0.1.0-py3-none-manylinux_2_28_x86_64.whl
-pybetterleaks-0.1.0-py3-none-manylinux_2_28_aarch64.whl
-pybetterleaks-0.1.0-py3-none-macosx_11_0_arm64.whl
-pybetterleaks-0.1.0-py3-none-macosx_11_0_x86_64.whl
-pybetterleaks-0.1.0-py3-none-win_amd64.whl
+pybetterleaks-0.2.0-py3-none-manylinux_2_28_x86_64.whl
+pybetterleaks-0.2.0-py3-none-manylinux_2_28_aarch64.whl
+pybetterleaks-0.2.0-py3-none-macosx_11_0_arm64.whl
+pybetterleaks-0.2.0-py3-none-macosx_11_0_x86_64.whl
+pybetterleaks-0.2.0-py3-none-win_amd64.whl
 ```
 
 If the build backend emits CPython-specific tags such as `cp312-cp312`, that is
@@ -120,6 +121,8 @@ Native smoke tests:
 - Call `betterleaks_version()`.
 - `scan_text` fixture with known fake secret.
 - `scan_dir` fixture directory.
+- Typed config fixture.
+- Validation env var fixture.
 - Config load success/failure.
 
 Wheel tests:
@@ -127,6 +130,7 @@ Wheel tests:
 - Install the built wheel into a clean virtual environment.
 - Import `pybetterleaks`.
 - Run `scan_text`.
+- Exercise typed config and async wrappers.
 - Confirm the native library path is inside the installed package.
 
 ## Fixtures
@@ -147,12 +151,19 @@ FROM python:3.12-slim
 RUN pip install --only-binary=:all: pybetterleaks
 ```
 
-Defer Alpine until manylinux support is working. Alpine needs musllinux wheels
-and tends to add friction for native packages.
+Alpine/musllinux remains blocked by the current Go shared library loader
+failure:
+
+```text
+initial-exec TLS resolves to dynamic definition
+```
+
+Do not publish musllinux wheels until `bash e2e/run-alpine.sh` passes without
+runtime launch workarounds.
 
 ## Source Distribution Policy
 
-For v0.1, publish wheels only. `MANIFEST.in` excludes generated native libraries
+For now, publish wheels only. `MANIFEST.in` excludes generated native libraries
 from sdists so a developer-machine macOS dylib cannot accidentally land in a
 source archive. Local wheel builds must use `uv build --wheel` after running
 `uv run python scripts/build_native.py`; plain combined builds may build the

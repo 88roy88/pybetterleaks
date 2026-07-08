@@ -1,25 +1,34 @@
 # PyBetterleaks
 
-Python-native Betterleaks. No CLI dance, no Go toolchain in production images,
-and no runtime `subprocess`.
+Python-native Betterleaks. No CLI wrapper, no Go toolchain in production
+images, and no runtime `subprocess`.
 
 ```bash
 pip install pybetterleaks
 ```
 
 ```python
-from pybetterleaks import scan_text
+from pybetterleaks import BetterleaksConfig, Rule, scan_text
 
-secret = "AGE-SECRET-KEY-" + "1QPZRY9X8GF2TVDW0S3JN54KHCE6MUA7LQPZRY9X8GF2TVDW0S3JN54KHCE"
-result = scan_text(secret)
+config = BetterleaksConfig(
+    rules=[
+        Rule(
+            id="internal-token",
+            description="Internal service token",
+            regex=r"INTERNAL_[A-Z0-9]{16}",
+            keywords=["INTERNAL_"],
+        )
+    ]
+)
 
+result = scan_text("INTERNAL_0123456789ABCDEF", config=config)
 for finding in result.findings:
     print(f"{finding.rule_id}: {finding.secret}")
 ```
 
 PyBetterleaks wraps the Betterleaks Go engine through a tiny `ctypes` JSON ABI
 and returns typed Python dataclasses. It is built for CI jobs, Python services,
-agent tools, notebooks, and Docker images that should stay boring.
+agent tools, notebooks, and Docker images that should stay simple.
 
 ## Why It Exists
 
@@ -37,19 +46,25 @@ Python app
         -> Betterleaks
 ```
 
-## What v0.1 Ships
+## What v0.2 Adds
 
-- `scan_text` and `scan_dir`
-- typed dataclass results
+- typed config dataclasses
+- async scan wrappers with cooperative native cancellation
+- validation env var bridging
 - self-contained platform wheels
 - bundled Betterleaks `v1.6.1`
-- GitHub Actions wheel builds
+- release artifact checksums
+- Docker packaging E2E
 - no runtime binary downloads
 - no runtime Betterleaks CLI dependency
+
+Musllinux/Alpine remains a documented loader blocker for the current Go shared
+library design.
 
 ## Start Here
 
 - [Getting Started](getting-started.md)
+- [Configuration](configuration.md)
 - [API Reference](api.md)
 - [Architecture](architecture.md)
 - [Release Checklist](release-checklist.md)

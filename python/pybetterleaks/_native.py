@@ -53,6 +53,8 @@ def _load_library() -> ctypes.CDLL:
     try:
         library.BetterleaksScanJSON.argtypes = [ctypes.c_char_p]
         library.BetterleaksScanJSON.restype = ctypes.c_void_p
+        library.BetterleaksCancel.argtypes = [ctypes.c_char_p]
+        library.BetterleaksCancel.restype = ctypes.c_void_p
         library.BetterleaksVersion.argtypes = []
         library.BetterleaksVersion.restype = ctypes.c_void_p
         library.BetterleaksFree.argtypes = [ctypes.c_void_p]
@@ -90,6 +92,25 @@ def scan_json(payload: Mapping[str, Any]) -> dict[str, Any]:
 
     if not isinstance(response, dict):
         raise NativeCallError("Betterleaks native library returned a non-object JSON response")
+
+    return response
+
+
+def cancel_scan_json(request_id: str) -> dict[str, Any]:
+    library = _load_library()
+    pointer = library.BetterleaksCancel(request_id.encode("utf-8"))
+    raw_response = _decode_owned_string(library, pointer)
+
+    try:
+        response = json.loads(raw_response)
+    except json.JSONDecodeError as exc:
+        raise NativeCallError(
+            "Betterleaks native library returned invalid cancel JSON: "
+            f"{raw_response[:200]}"
+        ) from exc
+
+    if not isinstance(response, dict):
+        raise NativeCallError("Betterleaks native library returned a non-object cancel response")
 
     return response
 

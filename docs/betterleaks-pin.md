@@ -32,7 +32,7 @@ A submodule would make the upstream source visible in the checkout, but Go would
 not use it unless the bridge added a `replace` directive. Keeping both a
 submodule and a normal module dependency creates two pins that can drift.
 
-For v0.1, the release source of truth is the Go module pin plus `go.sum`
+For v0.2, the release source of truth is the Go module pin plus `go.sum`
 checksums. This keeps CI, local builds, and wheel builds aligned with Go's
 normal reproducible dependency flow.
 

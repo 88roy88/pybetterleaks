@@ -88,26 +88,35 @@ Initial public API:
 - `betterleaks_version()`
 - Typed result models for findings and scan errors.
 
+Current v0.2 API additions:
+
+- `BetterleaksConfig`, `Rule`, `Extend`, `Expr`, and `RequiredRule`
+- `scan_text(..., config=..., validation_env_vars=...)`
+- `scan_dir(..., config=..., validation_env_vars=...)`
+- `scan_text_async(...)`
+- `scan_dir_async(...)`
+
 Later API:
 
 - Git repository scans.
 - GitHub/GitLab/Hugging Face/S3 source scans.
 - Streaming scan results.
-- Async-friendly wrappers.
-- Config inspection and rule metadata.
+- Richer config inspection and rule metadata.
 
 ## Non-Goals For Version 0.1
 
 - Reimplementing Betterleaks in Python.
 - Automatically generating broad Go-to-Python bindings.
 - Matching every Betterleaks CLI option on day one.
-- Supporting Alpine/musllinux before manylinux is stable.
+- Claiming Alpine/musllinux support while the Go shared library loader canary
+  fails.
 - Downloading native binaries during `pip install`.
 - Depending on a Betterleaks CLI executable at runtime.
 
 ## Local Workspace Notes
 
 At initial documentation creation time, this repository had no source files or
-commits. It now contains the Python SDK scaffold, Go bridge, tests, CI
-workflows, and a locally built macOS arm64 native library. Go was installed
-after the initial scaffold and native smoke tests pass locally.
+commits. It now contains the Python SDK scaffold, Go bridge, typed config API,
+async wrappers, tests, CI workflows, docs site, and a locally built macOS arm64
+native library. Go was installed after the initial scaffold and native smoke
+tests pass locally.

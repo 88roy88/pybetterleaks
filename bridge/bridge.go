@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"os"
 	"runtime/debug"
+	"sync"
 	"time"
 	"unsafe"
 
@@ -29,12 +30,15 @@ const (
 )
 
 type scanRequest struct {
-	Mode           string   `json:"mode"`
-	Target         string   `json:"target"`
-	ConfigPath     *string  `json:"config_path,omitempty"`
-	Validation     bool     `json:"validation"`
-	Redact         bool     `json:"redact"`
-	TimeoutSeconds *float64 `json:"timeout_seconds,omitempty"`
+	Mode              string            `json:"mode"`
+	Target            string            `json:"target"`
+	RequestID         *string           `json:"request_id,omitempty"`
+	ConfigPath        *string           `json:"config_path,omitempty"`
+	Validation        bool              `json:"validation"`
+	ValidationEnvVars []string          `json:"validation_env_vars,omitempty"`
+	ValidationEnv     map[string]string `json:"validation_env,omitempty"`
+	Redact            bool              `json:"redact"`
+	TimeoutSeconds    *float64          `json:"timeout_seconds,omitempty"`
 }
 
 type scanResponse struct {
@@ -67,6 +71,15 @@ type finding struct {
 	Raw              map[string]any    `json:"raw,omitempty"`
 }
 
+var activeScans = struct {
+	sync.Mutex
+	cancels map[string]context.CancelFunc
+}{
+	cancels: make(map[string]context.CancelFunc),
+}
+
+var validationEnvMu sync.Mutex
+
 //export BetterleaksScanJSON
 func BetterleaksScanJSON(requestJSON *C.char) (response *C.char) {
 	defer func() {
@@ -97,6 +110,48 @@ func BetterleaksScanJSON(requestJSON *C.char) (response *C.char) {
 	return jsonCString(resp)
 }
 
+//export BetterleaksCancel
+func BetterleaksCancel(requestID *C.char) (response *C.char) {
+	defer func() {
+		if recovered := recover(); recovered != nil {
+			response = jsonCString(scanResponse{
+				OK:                 false,
+				BetterleaksVersion: bundledBetterleaksVersion,
+				Findings:           []finding{},
+				Errors: []bridgeError{{
+					Code:    "panic",
+					Message: "Betterleaks cancel bridge panicked",
+					Detail:  panicDetail(recovered),
+				}},
+			})
+		}
+	}()
+
+	if requestID == nil {
+		return jsonCString(errorResponse("invalid_request", "request id pointer was NULL", ""))
+	}
+
+	id := C.GoString(requestID)
+	if id == "" {
+		return jsonCString(errorResponse("invalid_request", "request id was empty", ""))
+	}
+
+	activeScans.Lock()
+	cancel, ok := activeScans.cancels[id]
+	activeScans.Unlock()
+	if !ok {
+		return jsonCString(errorResponse("scan_not_found", "scan request id is not active", id))
+	}
+
+	cancel()
+	return jsonCString(scanResponse{
+		OK:                 true,
+		BetterleaksVersion: bundledBetterleaksVersion,
+		Findings:           []finding{},
+		Errors:             []bridgeError{},
+	})
+}
+
 //export BetterleaksVersion
 func BetterleaksVersion() *C.char {
 	return C.CString(bundledBetterleaksVersion)
@@ -113,6 +168,12 @@ func runScan(req scanRequest) scanResponse {
 		return errorResponse("invalid_timeout", "invalid scan timeout", err.Error())
 	}
 	defer cancel()
+	if err := registerScan(req, cancel); err != nil {
+		return errorResponse("invalid_request", "failed to register scan request", err.Error())
+	}
+	defer unregisterScan(req)
+	restoreEnv := applyValidationEnv(req)
+	defer restoreEnv()
 
 	switch req.Mode {
 	case "text":
@@ -122,6 +183,71 @@ func runScan(req scanRequest) scanResponse {
 	default:
 		return errorResponse("unsupported_mode", "unsupported scan mode", req.Mode)
 	}
+}
+
+type envRestore struct {
+	name    string
+	value   string
+	existed bool
+}
+
+func applyValidationEnv(req scanRequest) func() {
+	if !req.Validation {
+		return func() {}
+	}
+
+	names := validationEnvVars(req)
+	if len(names) == 0 {
+		return func() {}
+	}
+
+	validationEnvMu.Lock()
+	restore := make([]envRestore, 0, len(names))
+	for _, name := range names {
+		oldValue, existed := os.LookupEnv(name)
+		restore = append(restore, envRestore{name: name, value: oldValue, existed: existed})
+		if value, ok := req.ValidationEnv[name]; ok {
+			_ = os.Setenv(name, value)
+		} else {
+			_ = os.Unsetenv(name)
+		}
+	}
+
+	return func() {
+		for i := len(restore) - 1; i >= 0; i-- {
+			item := restore[i]
+			if item.existed {
+				_ = os.Setenv(item.name, item.value)
+			} else {
+				_ = os.Unsetenv(item.name)
+			}
+		}
+		validationEnvMu.Unlock()
+	}
+}
+
+func registerScan(req scanRequest, cancel context.CancelFunc) error {
+	if req.RequestID == nil || *req.RequestID == "" {
+		return nil
+	}
+
+	activeScans.Lock()
+	defer activeScans.Unlock()
+	if _, exists := activeScans.cancels[*req.RequestID]; exists {
+		return fmt.Errorf("request id is already active: %s", *req.RequestID)
+	}
+	activeScans.cancels[*req.RequestID] = cancel
+	return nil
+}
+
+func unregisterScan(req scanRequest) {
+	if req.RequestID == nil || *req.RequestID == "" {
+		return
+	}
+
+	activeScans.Lock()
+	delete(activeScans.cancels, *req.RequestID)
+	activeScans.Unlock()
 }
 
 func contextFromRequest(req scanRequest) (context.Context, context.CancelFunc, error) {
@@ -222,8 +348,9 @@ func newDetector(ctx context.Context, req scanRequest) (*detect.Detector, error)
 	}
 
 	detector := detect.NewDetectorContext(ctx, cfg, detect.ValidationOptions{
-		Enabled: req.Validation,
-		Timeout: validationTimeout(req),
+		Enabled:           req.Validation,
+		Timeout:           validationTimeout(req),
+		ValidationEnvVars: validationEnvVars(req),
 	})
 	detector.MaxDecodeDepth = defaultMaxDecodeDepth
 	detector.MaxArchiveDepth = defaultMaxArchiveDepth
@@ -233,6 +360,26 @@ func newDetector(ctx context.Context, req scanRequest) (*detect.Detector, error)
 		detector.Redact = 100
 	}
 	return detector, nil
+}
+
+func validationEnvVars(req scanRequest) []string {
+	seen := make(map[string]struct{}, len(req.ValidationEnvVars)+len(req.ValidationEnv))
+	values := make([]string, 0, len(req.ValidationEnvVars)+len(req.ValidationEnv))
+	for _, name := range req.ValidationEnvVars {
+		if _, ok := seen[name]; ok {
+			continue
+		}
+		seen[name] = struct{}{}
+		values = append(values, name)
+	}
+	for name := range req.ValidationEnv {
+		if _, ok := seen[name]; ok {
+			continue
+		}
+		seen[name] = struct{}{}
+		values = append(values, name)
+	}
+	return values
 }
 
 func loadConfig(req scanRequest) (*config.Config, error) {

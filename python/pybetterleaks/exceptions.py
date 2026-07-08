@@ -28,3 +28,7 @@ class NativeLibraryNotFoundError(NativeLibraryError):
 
 class NativeCallError(NativeLibraryError):
     """Raised when a native call fails before a structured scan response exists."""
+
+
+class ConfigFormatError(PyBetterleaksError, ValueError):
+    """Raised when a typed Betterleaks config cannot be serialized safely."""

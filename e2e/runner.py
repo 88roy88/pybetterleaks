@@ -4,7 +4,15 @@ import os
 import shutil
 from pathlib import Path
 
-from pybetterleaks import betterleaks_version, scan_dir, scan_text
+from pybetterleaks import (
+    BetterleaksConfig,
+    Rule,
+    ScanResult,
+    betterleaks_version,
+    scan_dir,
+    scan_text,
+    scan_text_async,
+)
 
 ROOT = Path(__file__).resolve().parent
 FIXTURES = ROOT / "fixtures"
@@ -12,6 +20,7 @@ CONFIG = FIXTURES / "betterleaks.toml"
 
 ALPHA_SECRET = "PYBETTERLEAKS_ALPHA_0A1B2C3D4E5F6A7B"
 BETA_SECRET = "PYBETTERLEAKS_BETA_8H7G6F5E4D3C2B1A"
+INLINE_SECRET = "PYBETTERLEAKS_INLINE_0123456789ABCDEF"
 
 EXPECTED_DIR_RULES = {
     "pybetterleaks-alpha",
@@ -26,6 +35,8 @@ def main() -> None:
     assert_version()
     assert_scan_text_redacted()
     assert_scan_text_unredacted()
+    assert_scan_text_with_typed_config()
+    assert_scan_text_async_with_typed_config()
     assert_scan_dir_finds_fixture_secrets()
     assert_invalid_config_returns_structured_error()
     assert_scan_dir_rejects_file_targets()
@@ -55,6 +66,22 @@ def assert_scan_text_unredacted() -> None:
     assert result.ok, result.errors
     assert _rule_ids(result) == {"pybetterleaks-beta"}
     assert result.findings[0].secret == BETA_SECRET
+
+
+def assert_scan_text_with_typed_config() -> None:
+    result = scan_text(INLINE_SECRET, config=typed_config(), redact=False)
+    assert result.ok, result.errors
+    assert _rule_ids(result) == {"pybetterleaks-inline"}
+    assert result.findings[0].secret == INLINE_SECRET
+
+
+def assert_scan_text_async_with_typed_config() -> None:
+    import asyncio
+
+    result = asyncio.run(scan_text_async(INLINE_SECRET, config=typed_config(), redact=True))
+    assert result.ok, result.errors
+    assert _rule_ids(result) == {"pybetterleaks-inline"}
+    assert result.findings[0].secret == "REDACTED"
 
 
 def assert_scan_dir_finds_fixture_secrets() -> None:
@@ -94,7 +121,20 @@ def assert_timeout_input_validation() -> None:
         raise AssertionError("scan_text should reject non-positive timeout_seconds")
 
 
-def _rule_ids(result: object) -> set[str]:
+def typed_config() -> BetterleaksConfig:
+    return BetterleaksConfig(
+        rules=[
+            Rule(
+                id="pybetterleaks-inline",
+                description="Synthetic inline PyBetterleaks fixture",
+                regex=r"PYBETTERLEAKS_INLINE_[A-Z0-9]{16}",
+                keywords=["PYBETTERLEAKS_INLINE_"],
+            )
+        ]
+    )
+
+
+def _rule_ids(result: ScanResult) -> set[str]:
     return {finding.rule_id for finding in result.findings}
 
 

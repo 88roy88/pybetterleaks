@@ -6,70 +6,95 @@ research and decisions made so far.
 ## User Intent
 
 The user wants a Python integration for Betterleaks. They explicitly do not want
-a package that merely shells out with `subprocess` or `popen`. They want a
+a package that shells out with `subprocess` or `popen` at runtime. They want a
 self-contained PyPI package that is easy to use in Docker and can be built by CI
 for multiple platforms.
 
 ## Current Repository State
 
-As of 2026-07-08:
+As of 2026-07-09:
 
 - Workspace: `/Users/roymezan/Documents/BetterLeaksPython`
 - Git branch: `main`
-- Repo status at docs creation: no commits yet
-- Python SDK, Go bridge, tests, Docker E2E, CI workflows, and docs are present
-- Go was installed with Homebrew after the initial scaffold
+- Remote: `https://github.com/roymezan/pybetterleaks.git`
+- Python package/import name: `pybetterleaks`
+- Python package version in development: `0.2.0`
+- Bundled Betterleaks version: `v1.6.1`
 - Local Go observed after installation: `go1.26.5 darwin/arm64`
-- Local macOS arm64 native library build succeeded
-- `scan_dir` uses Betterleaks `sources.Files` plus `Detector.Run`, preserving
-  path metadata, prefilters, archive handling, and context cancellation.
-- `scan_text` also uses `Detector.Run` through a small in-memory source so
-  validation and timeout behavior share the same path.
-- `MANIFEST.in` excludes generated native libraries from sdists; v0.1 release
-  should publish CI-built wheels only.
+- Python SDK, Go bridge, tests, Docker E2E, CI workflows, docs, typed config,
+  async wrappers, benchmarks, and checksum tooling are present.
 
-## Recommended Technical Path
+## Technical Path
 
-Build a Python package that bundles a Go shared library bridge:
+PyBetterleaks bundles a Go shared library bridge:
 
 ```text
 Python package
-  -> ctypes or cffi
+  -> ctypes JSON ABI
     -> Go shared library built with -buildmode=c-shared
       -> Betterleaks Go packages
 ```
 
-Use JSON across the C ABI. Keep the ABI tiny:
+Runtime subprocesses are rejected. Build-time subprocesses in scripts and CI are
+allowed.
+
+The exported ABI is:
 
 - `BetterleaksScanJSON`
+- `BetterleaksCancel`
 - `BetterleaksFree`
 - `BetterleaksVersion`
 
-Do not use runtime subprocesses to call the Betterleaks CLI.
+All scan requests and responses cross the ABI as UTF-8 JSON.
 
-## Betterleaks Facts To Reconfirm Before Coding
+## Betterleaks Config Coupling
 
-The following were checked on 2026-07-08 and may change:
+Before planning v0.2, upstream Betterleaks config docs were read at
+`betterleaks/docs/config.md`. The important conclusion: PyBetterleaks should
+model Betterleaks TOML directly instead of inventing a Python-only rules
+language.
 
-- Betterleaks repo: <https://github.com/betterleaks/betterleaks>
-- Latest release observed: `v1.6.1`, dated 2026-06-30
-- Main language: Go
-- License observed: MIT
-- Important packages: `detect`, `config`, `sources`, `report`
-- `detect.Detector.Run(ctx, source)` exists on the checked main branch
-- `detect.Detector.DetectString(content string)` exists on the checked main
-  branch
-- `sources.Source` is an interface with a `Fragments` method
+Modern Betterleaks config uses:
 
-Before implementing, fetch or vendor the exact Betterleaks version to pin and
-inspect the current APIs locally. Avoid coding from memory alone.
+- `prefilter`
+- `filter`
+- `validate`
+- `[extend]`
+- `[[rules]]`
+- `[[rules.required]]`
 
-## First Implementation Steps
+Legacy allowlists are intentionally not modeled in v0.2. Use Expr filters and
+prefilters instead.
 
-1. Run CI on Linux/macOS/Windows to validate wheel builds outside this machine.
-2. Expand native fixtures beyond the current smoke checks.
-3. Decide whether to publish a pre-release to TestPyPI.
-4. Coordinate package naming with Betterleaks maintainers before a public PyPI release.
+## v0.2 Decisions
+
+- Add `BetterleaksConfig`, `Rule`, `Extend`, `Expr`, and `RequiredRule`.
+- Keep dataclasses and no runtime dependencies.
+- Serialize typed configs to temporary TOML files and pass `config_path` to Go.
+- Add `scan_text_async` and `scan_dir_async`.
+- Implement async cancellation through request ids plus `BetterleaksCancel`.
+- Add `validation_env_vars` and mirror only explicitly allowlisted values into
+  Go env during validation scans.
+- Lock validation-env scans so one scan cannot observe another scan's temporary
+  env overlay.
+- Add synthetic benchmarks under `benchmarks/`.
+- Add release checksum generation.
+- Keep musllinux/Alpine in scope, but do not claim support while the loader
+  canary fails.
+
+## Musllinux Finding
+
+`bash e2e/run-alpine.sh` currently fails on Alpine when Python loads the Go
+shared library through `ctypes`:
+
+```text
+initial-exec TLS resolves to dynamic definition
+```
+
+This was also reproduced by building Betterleaks with Go `-buildmode=c-archive`
+and linking that archive into a musl shared object. It produced the same loader
+error. Do not publish musllinux wheels until this is solved without `LD_PRELOAD`,
+wrapper launchers, or runtime subprocesses.
 
 ## Important Constraints
 
@@ -77,28 +102,13 @@ inspect the current APIs locally. Avoid coding from memory alone.
 - Do not revert user changes.
 - Do not publish to PyPI without explicit user approval.
 - Do not run destructive Git commands.
+- The user explicitly asked to stop committing/pushing without permission. For
+  this v0.2 implementation, they later gave permission to commit and push when
+  done.
 - Network is restricted in this environment. If dependency fetching is required
   and sandboxed commands fail due to network, request escalation.
 
-## Design Decisions Already Made
-
-- Runtime subprocess wrapper: rejected.
-- Native Go bridge: accepted recommended path.
-- JSON ABI: recommended for stability and simplicity.
-- Self-contained wheels: required.
-- Install-time binary downloads: rejected.
-- Manylinux first, musllinux later: recommended.
-- API should start with `scan_text` and `scan_dir`.
-
-## Open Questions
-
-- Final PyPI package name.
-- Whether to coordinate with Betterleaks maintainers before publishing.
-- Whether to add source-build support later. v0.1 should publish wheels only.
-- Whether CI should add Linux arm64 before the first PyPI release.
-- Whether validation should stay default-off after broader testing.
-
-## Useful Commands Once Code Exists
+## Useful Commands
 
 ```bash
 uv sync --all-extras --dev
@@ -106,12 +116,19 @@ uv run python scripts/build_native.py
 uv run pytest
 uv run ruff check .
 uv run mypy python
+GOCACHE=/private/tmp/go-cache-pybetterleaks go test ./...
+GOCACHE=/private/tmp/go-cache-pybetterleaks go vet ./...
+uv run --group docs mkdocs build --strict
+uv run python benchmarks/bench.py --rounds 1 --warmups 0
 uv build --wheel
+uv run python scripts/wheel_smoke.py
 bash e2e/run.sh
+bash e2e/run-alpine.sh
 ```
 
 Use `uv build --sdist` only to inspect the source archive. It should not contain
-generated native libraries, and v0.1 should not publish sdists.
+generated native libraries, and sdists should not be published until source
+builds are explicitly supported.
 
 ## References
 
@@ -119,8 +136,8 @@ generated native libraries, and v0.1 should not publish sdists.
   <https://chatgpt.com/share/6a4e9907-1608-83eb-81e0-c92a48eb8a7a>
 - Betterleaks repository:
   <https://github.com/betterleaks/betterleaks>
-- Betterleaks detector source:
-  <https://raw.githubusercontent.com/betterleaks/betterleaks/main/detect/detect.go>
+- Betterleaks config docs:
+  <https://github.com/betterleaks/betterleaks/blob/main/docs/config.md>
 - Go build modes:
   <https://pkg.go.dev/cmd/go#hdr-Build_modes>
 - cibuildwheel:

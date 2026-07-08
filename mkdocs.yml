@@ -37,6 +37,7 @@ theme:
 nav:
   - Home: index.md
   - Getting Started: getting-started.md
+  - Configuration: configuration.md
   - API Reference: api.md
   - Architecture: architecture.md
   - ABI Contract: abi.md

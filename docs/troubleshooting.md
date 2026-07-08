@@ -21,7 +21,7 @@ pip install --only-binary=:all: pybetterleaks
 
 ## `go: command not found`
 
-Install Go locally or rely on GitHub Actions. This machine was fixed with:
+Install Go locally or rely on GitHub Actions. On macOS:
 
 ```bash
 brew install go
@@ -41,7 +41,7 @@ network/config layer panicked in the sandboxed macOS environment.
 ## Wheel Is Tagged `py3-none-any`
 
 Wheels that bundle native libraries must be platform-specific. The project uses
-a custom `bdist_wheel` command in `setup.py` to force platform tags.
+`BinaryDistribution.has_ext_modules()` in `setup.py` to force platform tags.
 
 ## Native Bridge Compile Fails After Betterleaks Upgrade
 
@@ -60,18 +60,46 @@ Run the test from the repository root:
 bash e2e/run.sh
 ```
 
-The final runtime stage should not contain Go. If that assertion fails, check the
-Dockerfile stage boundary before trusting the result.
+The final runtime stage should not contain Go. If that assertion fails, check
+the Dockerfile stage boundary before trusting the result.
 
 ## Alpine E2E Fails With `initial-exec TLS`
 
 `bash e2e/run-alpine.sh` currently fails when Python tries to load the Go
-`c-shared` library on musl:
+shared library on musl:
 
 ```text
 initial-exec TLS resolves to dynamic definition
 ```
 
-This is a known Alpine/musllinux blocker for the current `ctypes` plus Go shared
-library design. Keep Alpine out of the supported wheel matrix until the canary
-passes.
+This has been reproduced with:
+
+- Go `-buildmode=c-shared`
+- Go `-buildmode=c-archive` linked into a musl shared object
+- Python `ctypes` loading the library after process startup
+
+Do not publish musllinux wheels until this canary passes without `LD_PRELOAD`,
+wrapper launchers, or runtime subprocesses.
+
+## Async Cancellation Does Not Stop Instantly
+
+`scan_text_async` and `scan_dir_async` cancel cooperatively. Python cancellation
+notifies the Go bridge, and the native scan exits when Betterleaks observes the
+cancelled context. Very small scans may finish before the cancellation request
+arrives.
+
+## Validation Env Vars Are Missing In Go
+
+Pass the names explicitly:
+
+```python
+scan_text(
+    "secret",
+    validation=True,
+    validation_env_vars=["GITHUB_BASE_URL"],
+)
+```
+
+The Python layer copies values for those names from `os.environ` into the JSON
+request. The Go bridge mirrors them into the Go process environment only while
+that scan runs.

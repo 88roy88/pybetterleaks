@@ -200,7 +200,7 @@ Initial platform target:
 
 Defer:
 
-- Alpine/musllinux.
+- Alpine/musllinux until the Go shared library loader issue is solved.
 - Windows arm64.
 - PyPy unless there is demand.
 
@@ -275,10 +275,16 @@ Release checklist:
 Potential improvements:
 
 - Add streaming results.
-- Add async wrapper around scans.
 - Add Git source scanning.
 - Add GitHub/GitLab/Hugging Face/S3 source scans.
 - Add richer validation metadata.
 - Add `pybetterleaks validate-config`.
 - Add compatibility matrix by Betterleaks version.
 - Add benchmarks against Betterleaks CLI.
+
+v0.2 update:
+
+- Typed config, async wrappers, validation env var bridging, checksum tooling,
+  and benchmark scaffolding moved from future work into the implementation.
+- Musllinux/Alpine remains blocked by the Go/musl `initial-exec TLS` loader
+  failure observed in the Alpine canary.

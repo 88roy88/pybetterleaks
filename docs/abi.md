@@ -8,6 +8,7 @@ changes.
 
 ```go
 BetterleaksScanJSON(requestJSON *C.char) *C.char
+BetterleaksCancel(requestID *C.char) *C.char
 BetterleaksVersion() *C.char
 BetterleaksFree(ptr *C.char)
 ```
@@ -19,24 +20,55 @@ Rules:
   pointer.
 - All request and response payloads are UTF-8 JSON objects.
 - The bridge must recover from panics and return structured errors.
+- `BetterleaksCancel` is best-effort. A scan may finish before cancellation
+  reaches the registered request id.
 
-## Request
+## Scan Request
 
 ```json
 {
   "mode": "text",
   "target": "content or directory path",
+  "request_id": "optional-uuid",
   "config_path": null,
   "validation": false,
+  "validation_env_vars": [],
+  "validation_env": {},
   "redact": true,
   "timeout_seconds": null
 }
 ```
 
-Supported `mode` values for v0.1:
+Fields:
 
-- `text`
-- `dir`
+- `mode`: `text` or `dir`.
+- `target`: string content for text mode, path for dir mode.
+- `request_id`: optional id used by async cancellation.
+- `config_path`: optional Betterleaks TOML path. Python typed configs are
+  serialized to temporary TOML files before reaching this boundary.
+- `validation`: enable Betterleaks validation.
+- `validation_env_vars`: allowlisted env var names for validation Expr.
+- `validation_env`: values for allowlisted names copied from Python
+  `os.environ`.
+- `redact`: redact secret values in findings.
+- `timeout_seconds`: optional scan deadline.
+
+## Cancel Request
+
+`BetterleaksCancel` receives only a request id string and returns the standard
+response envelope. When the request id is active, the bridge cancels the scan
+context:
+
+```json
+{
+  "ok": true,
+  "betterleaks_version": "v1.6.1",
+  "findings": [],
+  "errors": []
+}
+```
+
+If the scan already finished, the bridge returns `scan_not_found`.
 
 ## Response
 
@@ -58,8 +90,8 @@ Error responses keep the same outer shape:
   "findings": [],
   "errors": [
     {
-      "code": "config_load_failed",
-      "message": "failed to load config",
+      "code": "detector_init_failed",
+      "message": "failed to initialize Betterleaks detector",
       "detail": "..."
     }
   ]
@@ -68,7 +100,7 @@ Error responses keep the same outer shape:
 
 ## Finding Shape
 
-The bridge should emit snake_case fields:
+The bridge emits snake_case fields:
 
 ```json
 {
@@ -79,7 +111,7 @@ The bridge should emit snake_case fields:
   "column": 4,
   "end_line": 12,
   "end_column": 44,
-  "secret": "***",
+  "secret": "REDACTED",
   "match": "github_pat_...",
   "validation_status": "unknown",
   "validation_meta": {},
@@ -91,4 +123,3 @@ The bridge should emit snake_case fields:
 
 The Python model parser accepts a few legacy/camel-case aliases, but the native
 bridge should produce the canonical snake_case shape.
-

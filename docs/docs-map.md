@@ -9,6 +9,8 @@ self-contained Python package for Betterleaks.
   what has already been verified.
 - [Getting started](getting-started.md): install, local build, scan examples,
   Docker, and docs commands.
+- [Configuration](configuration.md): typed config models, Betterleaks TOML
+  mapping, Expr filters, and validation env vars.
 - [API reference](api.md): generated public Python API reference.
 - [Workplan](workplan.md): phased implementation plan from scaffold to PyPI
   release.
@@ -23,9 +25,10 @@ self-contained Python package for Betterleaks.
 - [Release checklist](release-checklist.md): maintainer checklist for wheel and
   PyPI releases.
 - [Troubleshooting](troubleshooting.md): common local build and install issues.
-- [Roadmap](roadmap.md): follow-up features after the first working release.
-- [v0.2 plan](v0.2-plan.md): config API, benchmarks, release hardening, and
-  acceptance criteria for the next minor release.
+- [Roadmap](roadmap.md): release scope, blocked musllinux work, and follow-up
+  features.
+- [v0.2 plan](v0.2-plan.md): config API, async cancellation, benchmarks,
+  release hardening, and acceptance criteria.
 - [AI handoff](ai-handoff.md): compact context for future AI agents and human
   maintainers.
 - [Docker E2E](https://github.com/roymezan/pybetterleaks/tree/main/e2e):
@@ -33,6 +36,7 @@ self-contained Python package for Betterleaks.
 
 ## Current Status
 
-Created on 2026-07-08. The repository now contains the initial Python SDK,
-native ABI bridge, tests, Docker E2E harness, CI workflows, generated docs site,
-and release docs.
+Created on 2026-07-08 and updated for v0.2 on 2026-07-09. The repository now
+contains the Python SDK, native ABI bridge, typed config API, async wrappers,
+tests, Docker E2E harness, CI workflows, generated docs site, benchmarks, and
+release docs.

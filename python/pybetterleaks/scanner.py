@@ -1,10 +1,19 @@
 from __future__ import annotations
 
+import asyncio
+import contextlib
+import functools
 import os
-from typing import Optional, Union
+import tempfile
+import uuid
+from collections.abc import Sequence
+from pathlib import Path
+from typing import Callable, Optional, Union
 
 from ._native import betterleaks_version as _native_betterleaks_version
+from ._native import cancel_scan_json as _native_cancel_scan_json
 from ._native import scan_json as _native_scan_json
+from .config import BetterleaksConfig
 from .models import ScanResult
 
 PathInput = Union[str, os.PathLike[str]]
@@ -13,17 +22,22 @@ PathInput = Union[str, os.PathLike[str]]
 def scan_text(
     text: str,
     *,
+    config: Optional[BetterleaksConfig] = None,
     config_path: Optional[PathInput] = None,
     validation: bool = False,
+    validation_env_vars: Optional[Sequence[str]] = None,
     redact: bool = True,
     timeout_seconds: Optional[float] = None,
+    _request_id: Optional[str] = None,
 ) -> ScanResult:
     """Scan an in-memory text fragment for secrets.
 
     Args:
         text: Text content to scan.
+        config: Optional typed Betterleaks config. Mutually exclusive with `config_path`.
         config_path: Optional path to a Betterleaks configuration file.
         validation: Enable Betterleaks validation when supported by the rule.
+        validation_env_vars: Environment variable names validation Expr may read.
         redact: Replace secret values in findings with `REDACTED`.
         timeout_seconds: Optional positive scan deadline in seconds.
 
@@ -35,31 +49,38 @@ def scan_text(
         ValueError: If `timeout_seconds` is not positive.
         NativeLibraryError: If the native library cannot load or returns malformed data.
     """
-    payload = _scan_payload(
+    return _scan(
         mode="text",
         target=text,
+        config=config,
         config_path=config_path,
         validation=validation,
+        validation_env_vars=validation_env_vars,
         redact=redact,
         timeout_seconds=timeout_seconds,
+        request_id=_request_id,
     )
-    return ScanResult.from_native_response(_native_scan_json(payload))
 
 
 def scan_dir(
     path: PathInput,
     *,
+    config: Optional[BetterleaksConfig] = None,
     config_path: Optional[PathInput] = None,
     validation: bool = False,
+    validation_env_vars: Optional[Sequence[str]] = None,
     redact: bool = True,
     timeout_seconds: Optional[float] = None,
+    _request_id: Optional[str] = None,
 ) -> ScanResult:
     """Scan a directory with the bundled Betterleaks engine.
 
     Args:
         path: Directory path to scan.
+        config: Optional typed Betterleaks config. Mutually exclusive with `config_path`.
         config_path: Optional path to a Betterleaks configuration file.
         validation: Enable Betterleaks validation when supported by the rule.
+        validation_env_vars: Environment variable names validation Expr may read.
         redact: Replace secret values in findings with `REDACTED`.
         timeout_seconds: Optional positive scan deadline in seconds.
 
@@ -72,15 +93,69 @@ def scan_dir(
         ValueError: If `timeout_seconds` is not positive.
         NativeLibraryError: If the native library cannot load or returns malformed data.
     """
-    payload = _scan_payload(
+    return _scan(
         mode="dir",
         target=os.fspath(path),
+        config=config,
         config_path=config_path,
         validation=validation,
+        validation_env_vars=validation_env_vars,
         redact=redact,
         timeout_seconds=timeout_seconds,
+        request_id=_request_id,
     )
-    return ScanResult.from_native_response(_native_scan_json(payload))
+
+
+async def scan_text_async(
+    text: str,
+    *,
+    config: Optional[BetterleaksConfig] = None,
+    config_path: Optional[PathInput] = None,
+    validation: bool = False,
+    validation_env_vars: Optional[Sequence[str]] = None,
+    redact: bool = True,
+    timeout_seconds: Optional[float] = None,
+) -> ScanResult:
+    """Async wrapper for `scan_text` with cooperative native cancellation."""
+    request_id = str(uuid.uuid4())
+    call = functools.partial(
+        scan_text,
+        text,
+        config=config,
+        config_path=config_path,
+        validation=validation,
+        validation_env_vars=validation_env_vars,
+        redact=redact,
+        timeout_seconds=timeout_seconds,
+        _request_id=request_id,
+    )
+    return await _run_cancellable(call, request_id)
+
+
+async def scan_dir_async(
+    path: PathInput,
+    *,
+    config: Optional[BetterleaksConfig] = None,
+    config_path: Optional[PathInput] = None,
+    validation: bool = False,
+    validation_env_vars: Optional[Sequence[str]] = None,
+    redact: bool = True,
+    timeout_seconds: Optional[float] = None,
+) -> ScanResult:
+    """Async wrapper for `scan_dir` with cooperative native cancellation."""
+    request_id = str(uuid.uuid4())
+    call = functools.partial(
+        scan_dir,
+        path,
+        config=config,
+        config_path=config_path,
+        validation=validation,
+        validation_env_vars=validation_env_vars,
+        redact=redact,
+        timeout_seconds=timeout_seconds,
+        _request_id=request_id,
+    )
+    return await _run_cancellable(call, request_id)
 
 
 def betterleaks_version() -> str:
@@ -88,12 +163,57 @@ def betterleaks_version() -> str:
     return _native_betterleaks_version()
 
 
+def _scan(
+    *,
+    mode: str,
+    target: str,
+    config: Optional[BetterleaksConfig],
+    config_path: Optional[PathInput],
+    validation: bool,
+    validation_env_vars: Optional[Sequence[str]],
+    redact: bool,
+    timeout_seconds: Optional[float],
+    request_id: Optional[str],
+) -> ScanResult:
+    if config is not None and config_path is not None:
+        raise ValueError("config and config_path are mutually exclusive")
+
+    if config is None:
+        payload = _scan_payload(
+            mode=mode,
+            target=target,
+            request_id=request_id,
+            config_path=config_path,
+            validation=validation,
+            validation_env_vars=validation_env_vars,
+            redact=redact,
+            timeout_seconds=timeout_seconds,
+        )
+        return ScanResult.from_native_response(_native_scan_json(payload))
+
+    with tempfile.TemporaryDirectory(prefix="pybetterleaks-config-") as tmpdir:
+        generated_config_path = config.write(Path(tmpdir) / "betterleaks.toml")
+        payload = _scan_payload(
+            mode=mode,
+            target=target,
+            request_id=request_id,
+            config_path=generated_config_path,
+            validation=validation,
+            validation_env_vars=validation_env_vars,
+            redact=redact,
+            timeout_seconds=timeout_seconds,
+        )
+        return ScanResult.from_native_response(_native_scan_json(payload))
+
+
 def _scan_payload(
     *,
     mode: str,
     target: str,
+    request_id: Optional[str],
     config_path: Optional[PathInput],
     validation: bool,
+    validation_env_vars: Optional[Sequence[str]],
     redact: bool,
     timeout_seconds: Optional[float],
 ) -> dict[str, object]:
@@ -103,8 +223,27 @@ def _scan_payload(
     return {
         "mode": mode,
         "target": target,
+        "request_id": request_id,
         "config_path": os.fspath(config_path) if config_path is not None else None,
         "validation": validation,
+        "validation_env_vars": list(validation_env_vars or []),
+        "validation_env": {
+            name: os.environ[name] for name in validation_env_vars or [] if name in os.environ
+        },
         "redact": redact,
         "timeout_seconds": timeout_seconds,
     }
+
+
+async def _run_cancellable(
+    call: Callable[[], ScanResult],
+    request_id: str,
+) -> ScanResult:
+    loop = asyncio.get_running_loop()
+    future = loop.run_in_executor(None, call)
+    try:
+        return await future
+    except asyncio.CancelledError:
+        with contextlib.suppress(Exception):
+            _native_cancel_scan_json(request_id)
+        raise
