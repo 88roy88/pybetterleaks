@@ -31,6 +31,7 @@ Rules:
   "target": "content or directory path",
   "request_id": "optional-uuid",
   "config_path": null,
+  "config_toml": null,
   "validation": false,
   "validation_env_vars": [],
   "validation_env": {},
@@ -44,8 +45,11 @@ Fields:
 - `mode`: `text` or `dir`.
 - `target`: string content for text mode, path for dir mode.
 - `request_id`: optional id used by async cancellation.
-- `config_path`: optional Betterleaks TOML path. Python typed configs are
-  serialized to temporary TOML files before reaching this boundary.
+- `config_path`: optional Betterleaks TOML path for user-owned config files.
+- `config_toml`: optional inline Betterleaks TOML. Python typed configs are
+  serialized into this field and parsed in Go with Betterleaks'
+  `config.ParseTOMLString`.
+- `config_path` and `config_toml` are mutually exclusive.
 - `validation`: enable Betterleaks validation.
 - `validation_env_vars`: allowlisted env var names for validation Expr.
 - `validation_env`: values for allowlisted names copied from Python

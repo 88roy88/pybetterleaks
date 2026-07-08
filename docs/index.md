@@ -65,6 +65,7 @@ library design.
 
 - [Getting Started](getting-started.md)
 - [Configuration](configuration.md)
+- [Benchmarks](benchmarks.md)
 - [API Reference](api.md)
 - [Architecture](architecture.md)
 - [Release Checklist](release-checklist.md)

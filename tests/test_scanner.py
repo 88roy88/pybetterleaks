@@ -27,6 +27,7 @@ def test_scan_text_serializes_request(monkeypatch: pytest.MonkeyPatch) -> None:
         "target": "secret",
         "request_id": None,
         "config_path": None,
+        "config_toml": None,
         "validation": True,
         "validation_env_vars": [],
         "validation_env": {},
@@ -56,6 +57,7 @@ def test_scan_dir_serializes_path_inputs(monkeypatch: pytest.MonkeyPatch, tmp_pa
     assert captured["mode"] == "dir"
     assert captured["target"] == str(tmp_path)
     assert captured["config_path"] == str(config_path)
+    assert captured["config_toml"] is None
     assert result.ok
 
 
@@ -82,9 +84,8 @@ def test_scan_text_serializes_validation_env_vars(monkeypatch: pytest.MonkeyPatc
     }
 
 
-def test_scan_text_writes_temporary_typed_config(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_scan_text_serializes_typed_config_toml(monkeypatch: pytest.MonkeyPatch) -> None:
     captured = {}
-    config_parent = None
     config = BetterleaksConfig(
         rules=[
             Rule(
@@ -97,12 +98,7 @@ def test_scan_text_writes_temporary_typed_config(monkeypatch: pytest.MonkeyPatch
     )
 
     def fake_scan_json(payload):
-        nonlocal config_parent
         captured.update(payload)
-        config_path = Path(str(payload["config_path"]))
-        config_parent = config_path.parent
-        assert config_path.exists()
-        assert "typed-config" in config_path.read_text(encoding="utf-8")
         return {
             "ok": True,
             "betterleaks_version": "v1.6.1",
@@ -115,9 +111,8 @@ def test_scan_text_writes_temporary_typed_config(monkeypatch: pytest.MonkeyPatch
     result = scanner.scan_text("TYPED_CONFIG_0123456789ABCDEF", config=config)
 
     assert result.ok
-    assert captured["config_path"]
-    assert config_parent is not None
-    assert not config_parent.exists()
+    assert captured["config_path"] is None
+    assert "typed-config" in str(captured["config_toml"])
 
 
 def test_scan_rejects_config_and_config_path(tmp_path: Path) -> None:

@@ -34,6 +34,7 @@ type scanRequest struct {
 	Target            string            `json:"target"`
 	RequestID         *string           `json:"request_id,omitempty"`
 	ConfigPath        *string           `json:"config_path,omitempty"`
+	ConfigTOML        *string           `json:"config_toml,omitempty"`
 	Validation        bool              `json:"validation"`
 	ValidationEnvVars []string          `json:"validation_env_vars,omitempty"`
 	ValidationEnv     map[string]string `json:"validation_env,omitempty"`
@@ -383,6 +384,12 @@ func validationEnvVars(req scanRequest) []string {
 }
 
 func loadConfig(req scanRequest) (*config.Config, error) {
+	if req.ConfigTOML != nil && req.ConfigPath != nil && *req.ConfigPath != "" {
+		return nil, errors.New("config_toml and config_path are mutually exclusive")
+	}
+	if req.ConfigTOML != nil {
+		return config.ParseTOMLString(*req.ConfigTOML, "<pybetterleaks-inline-config>")
+	}
 	if req.ConfigPath != nil && *req.ConfigPath != "" {
 		return config.LoadFile(*req.ConfigPath)
 	}

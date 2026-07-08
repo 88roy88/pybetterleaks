@@ -4,10 +4,8 @@ import asyncio
 import contextlib
 import functools
 import os
-import tempfile
 import uuid
 from collections.abc import Sequence
-from pathlib import Path
 from typing import Callable, Optional, Union
 
 from ._native import betterleaks_version as _native_betterleaks_version
@@ -178,32 +176,18 @@ def _scan(
     if config is not None and config_path is not None:
         raise ValueError("config and config_path are mutually exclusive")
 
-    if config is None:
-        payload = _scan_payload(
-            mode=mode,
-            target=target,
-            request_id=request_id,
-            config_path=config_path,
-            validation=validation,
-            validation_env_vars=validation_env_vars,
-            redact=redact,
-            timeout_seconds=timeout_seconds,
-        )
-        return ScanResult.from_native_response(_native_scan_json(payload))
-
-    with tempfile.TemporaryDirectory(prefix="pybetterleaks-config-") as tmpdir:
-        generated_config_path = config.write(Path(tmpdir) / "betterleaks.toml")
-        payload = _scan_payload(
-            mode=mode,
-            target=target,
-            request_id=request_id,
-            config_path=generated_config_path,
-            validation=validation,
-            validation_env_vars=validation_env_vars,
-            redact=redact,
-            timeout_seconds=timeout_seconds,
-        )
-        return ScanResult.from_native_response(_native_scan_json(payload))
+    payload = _scan_payload(
+        mode=mode,
+        target=target,
+        request_id=request_id,
+        config_path=config_path,
+        config_toml=config.to_toml() if config is not None else None,
+        validation=validation,
+        validation_env_vars=validation_env_vars,
+        redact=redact,
+        timeout_seconds=timeout_seconds,
+    )
+    return ScanResult.from_native_response(_native_scan_json(payload))
 
 
 def _scan_payload(
@@ -212,6 +196,7 @@ def _scan_payload(
     target: str,
     request_id: Optional[str],
     config_path: Optional[PathInput],
+    config_toml: Optional[str],
     validation: bool,
     validation_env_vars: Optional[Sequence[str]],
     redact: bool,
@@ -225,6 +210,7 @@ def _scan_payload(
         "target": target,
         "request_id": request_id,
         "config_path": os.fspath(config_path) if config_path is not None else None,
+        "config_toml": config_toml,
         "validation": validation,
         "validation_env_vars": list(validation_env_vars or []),
         "validation_env": {

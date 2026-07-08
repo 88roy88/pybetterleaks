@@ -49,7 +49,7 @@ sequenceDiagram
     participant Engine as Betterleaks
 
     App->>SDK: scan_text/scan_dir
-    SDK->>SDK: serialize typed config if provided
+    SDK->>SDK: serialize typed config to TOML if provided
     SDK->>ABI: BetterleaksScanJSON(request)
     ABI->>Bridge: UTF-8 JSON
     Bridge->>Engine: detect.Detector.Run(ctx, source)
@@ -63,11 +63,13 @@ sequenceDiagram
 ## Config Model
 
 `BetterleaksConfig` is a Python dataclass model for Betterleaks TOML. It does
-not replace Betterleaks config parsing. For a typed config scan, Python writes a
-temporary `betterleaks.toml`, passes its path to the bridge, and removes the
-temporary directory after the native call returns.
+not replace Betterleaks config parsing. For a typed config scan, Python
+serializes the dataclass model to TOML and sends that TOML string through the
+JSON ABI as `config_toml`.
 
-That keeps the native ABI stable: the Go bridge only needs `config_path`.
+The Go bridge parses inline TOML with Betterleaks' own `config.ParseTOMLString`.
+For user-owned TOML files, callers can still pass `config_path`, and the bridge
+loads the file with Betterleaks' `config.LoadFile`.
 
 ## Async Model
 

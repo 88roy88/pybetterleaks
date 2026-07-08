@@ -1,9 +1,10 @@
 # Configuration
 
-PyBetterleaks v0.2 adds a typed Python config builder that serializes to a
-temporary Betterleaks TOML file for each scan. The Go bridge still receives a
-`config_path`, so Betterleaks remains the source of truth for config parsing and
-rule behavior.
+PyBetterleaks v0.2 adds a typed Python config builder that serializes to
+Betterleaks-compatible TOML for each scan. The Python SDK sends that TOML string
+through the JSON ABI, and the Go bridge parses it with Betterleaks'
+`config.ParseTOMLString`, so Betterleaks remains the source of truth for config
+parsing and rule behavior.
 
 Use `config_path` when you already have a hand-written Betterleaks config. Use
 `BetterleaksConfig` when application code needs to generate or adjust rules.

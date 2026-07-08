@@ -11,6 +11,8 @@ self-contained Python package for Betterleaks.
   Docker, and docs commands.
 - [Configuration](configuration.md): typed config models, Betterleaks TOML
   mapping, Expr filters, and validation env vars.
+- [Benchmarks](benchmarks.md): current synthetic benchmark results,
+  reproduction commands, and interpretation notes.
 - [API reference](api.md): generated public Python API reference.
 - [Workplan](workplan.md): phased implementation plan from scaffold to PyPI
   release.

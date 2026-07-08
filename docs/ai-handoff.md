@@ -70,7 +70,9 @@ prefilters instead.
 
 - Add `BetterleaksConfig`, `Rule`, `Extend`, `Expr`, and `RequiredRule`.
 - Keep dataclasses and no runtime dependencies.
-- Serialize typed configs to temporary TOML files and pass `config_path` to Go.
+- Serialize typed configs to TOML strings and pass `config_toml` through the
+  JSON ABI. The Go bridge parses inline TOML with Betterleaks'
+  `config.ParseTOMLString`.
 - Add `scan_text_async` and `scan_dir_async`.
 - Implement async cancellation through request ids plus `BetterleaksCancel`.
 - Add `validation_env_vars` and mirror only explicitly allowlisted values into
