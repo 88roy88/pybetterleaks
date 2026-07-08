@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 ARG PYTHON_IMAGE=python:3.13-slim
-ARG GO_VERSION=1.26.3
+ARG GO_VERSION=1.26.5
 
 FROM ${PYTHON_IMAGE} AS builder
 

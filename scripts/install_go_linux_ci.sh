@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-GO_VERSION="${GO_VERSION:-1.26.3}"
+GO_VERSION="${GO_VERSION:-1.26.5}"
 ARCH="$(uname -m)"
 
 case "${ARCH}" in
