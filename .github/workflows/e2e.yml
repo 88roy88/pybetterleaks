@@ -1,0 +1,26 @@
+name: E2E
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  runtime:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and run Docker E2E
+        run: bash e2e/run.sh
+
+  alpine-canary:
+    if: github.event_name == 'workflow_dispatch'
+    continue-on-error: true
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and run Alpine canary
+        run: bash e2e/run-alpine.sh

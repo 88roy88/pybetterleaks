@@ -1,0 +1,17 @@
+.git/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.venv/
+build/
+dist/
+htmlcov/
+site/
+wheelhouse/
+*.egg-info/
+*.py[cod]
+__pycache__/
+python/pybetterleaks/native/*.dll
+python/pybetterleaks/native/*.dylib
+python/pybetterleaks/native/*.h
+python/pybetterleaks/native/*.so

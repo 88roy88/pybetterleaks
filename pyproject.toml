@@ -1,0 +1,84 @@
+[build-system]
+requires = ["setuptools>=70.1", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pybetterleaks"
+version = "0.1.0"
+description = "Native Python bindings for Betterleaks"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [{ name = "Roy M Mezan" }]
+keywords = ["betterleaks", "secrets", "security", "scanner", "bindings"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Go",
+  "Topic :: Security",
+  "Typing :: Typed",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/88roy88/pybetterleaks"
+Repository = "https://github.com/88roy88/pybetterleaks"
+Issues = "https://github.com/88roy88/pybetterleaks/issues"
+
+[dependency-groups]
+dev = [
+  "build>=1.2.2",
+  "cibuildwheel>=2.22.0",
+  "mypy>=1.14.0,<1.18.0",
+  "pytest>=8.3.0",
+  "ruff>=0.8.0",
+  "twine>=6.0.0",
+]
+docs = [
+  "mkdocs>=1.6.1,<2.0.0",
+  "mkdocs-material>=9.6.0",
+  "mkdocstrings[python]>=0.29.0",
+]
+
+[tool.setuptools]
+package-dir = { "" = "python" }
+
+[tool.setuptools.packages.find]
+where = ["python"]
+
+[tool.setuptools.package-data]
+pybetterleaks = [
+  "py.typed",
+  "native/*.dll",
+  "native/*.dylib",
+  "native/*.so",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["python"]
+testpaths = ["tests"]
+markers = [
+  "native: tests that require a compiled Betterleaks native library",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "C4", "SIM", "RUF"]
+ignore = ["UP006", "UP007", "UP037", "UP045"]
+
+[tool.mypy]
+python_version = "3.9"
+strict = true
+mypy_path = "python"
+packages = ["pybetterleaks"]

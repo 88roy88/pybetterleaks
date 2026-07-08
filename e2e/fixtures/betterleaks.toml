@@ -1,0 +1,25 @@
+title = "PyBetterleaks synthetic fixture rules"
+
+[[rules]]
+id = "pybetterleaks-alpha"
+description = "Synthetic PyBetterleaks alpha fixture"
+regex = '''PYBETTERLEAKS_ALPHA_[A-Z0-9]{16}'''
+keywords = ["PYBETTERLEAKS_ALPHA_"]
+
+[[rules]]
+id = "pybetterleaks-beta"
+description = "Synthetic PyBetterleaks beta fixture"
+regex = '''PYBETTERLEAKS_BETA_[A-Z0-9]{16}'''
+keywords = ["PYBETTERLEAKS_BETA_"]
+
+[[rules]]
+id = "pybetterleaks-gamma"
+description = "Synthetic PyBetterleaks gamma fixture"
+regex = '''PYBETTERLEAKS_GAMMA_[A-Z0-9]{16}'''
+keywords = ["PYBETTERLEAKS_GAMMA_"]
+
+[[rules]]
+id = "pybetterleaks-delta"
+description = "Synthetic PyBetterleaks delta fixture"
+regex = '''PYBETTERLEAKS_DELTA_[A-Z0-9]{16}'''
+keywords = ["PYBETTERLEAKS_DELTA_"]

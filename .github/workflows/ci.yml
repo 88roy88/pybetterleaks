@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  python:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Betterleaks pin check
+        run: uv run python scripts/check_betterleaks_pin.py
+
+      - name: Ruff
+        run: uv run ruff check .
+
+      - name: Mypy
+        run: uv run mypy python
+
+      - name: Pytest
+        run: uv run pytest
+
+  go:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.x"
+          cache-dependency-path: bridge/go.sum
+
+      - name: Gofmt
+        working-directory: bridge
+        run: |
+          files="$(gofmt -l .)"
+          if [ -n "$files" ]; then
+            echo "$files"
+            exit 1
+          fi
+
+      - name: Go test
+        working-directory: bridge
+        run: go test ./...
+
+      - name: Go vet
+        working-directory: bridge
+        run: go vet ./...
+
+      - name: Install Go analysis tools
+        run: |
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Staticcheck
+        working-directory: bridge
+        run: staticcheck ./...
+
+      - name: Govulncheck
+        working-directory: bridge
+        run: govulncheck ./...
