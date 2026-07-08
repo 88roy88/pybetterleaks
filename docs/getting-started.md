@@ -87,14 +87,30 @@ else:
         print(f"{error.code}: {error.message}")
 ```
 
+## Git Worktree Scans
+
+```python
+from pybetterleaks import scan_git
+
+result = scan_git(".", scope="worktree", config_path=".betterleaks.toml")
+
+for finding in result.findings:
+    print(f"{finding.file}:{finding.line} {finding.rule_id}")
+```
+
+`scan_git` currently supports local worktree scans only. It validates that the
+target is inside a Git worktree, skips `.git` metadata, and does not invoke the
+Git executable. History, staged-only, and diff scans are planned for a later
+v0.3 slice.
+
 ## Async Scans
 
 ```python
 import asyncio
-from pybetterleaks import scan_dir_async
+from pybetterleaks import scan_git_async
 
 async def main() -> None:
-    result = await scan_dir_async(".", timeout_seconds=10)
+    result = await scan_git_async(".", timeout_seconds=10)
     print(result.ok, len(result.findings))
 
 asyncio.run(main())

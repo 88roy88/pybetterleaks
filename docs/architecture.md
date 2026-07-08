@@ -123,6 +123,17 @@ Runtime:
 
 No runtime subprocess is required.
 
+## Git Worktree Scans
+
+`scan_git(..., scope="worktree")` is intentionally conservative. It validates
+that the target is inside a local Git worktree, scans the working tree through
+the same Betterleaks file source used by `scan_dir`, and skips `.git` metadata.
+
+It does not call the `git` executable at runtime. Upstream Betterleaks' history
+and diff source currently shells out to Git, so PyBetterleaks does not expose
+history, staged-only, or diff scopes until those can be implemented without
+weakening the no-runtime-subprocess promise.
+
 ## CI Architecture
 
 Workflows:

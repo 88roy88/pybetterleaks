@@ -29,6 +29,7 @@ Rules:
 {
   "mode": "text",
   "target": "content or directory path",
+  "git_scope": null,
   "request_id": "optional-uuid",
   "config_path": null,
   "config_toml": null,
@@ -42,8 +43,10 @@ Rules:
 
 Fields:
 
-- `mode`: `text` or `dir`.
-- `target`: string content for text mode, path for dir mode.
+- `mode`: `text`, `dir`, or `git`.
+- `target`: string content for text mode, path for dir and git modes.
+- `git_scope`: optional Git scan scope. v0.3 initially supports only
+  `worktree`.
 - `request_id`: optional id used by async cancellation.
 - `config_path`: optional Betterleaks TOML path for user-owned config files.
 - `config_toml`: optional inline Betterleaks TOML. Python typed configs are

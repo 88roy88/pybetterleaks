@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 from pybetterleaks import BetterleaksConfig, Rule, _native
-from pybetterleaks.scanner import scan_dir, scan_text
+from pybetterleaks.scanner import scan_dir, scan_git, scan_text
 
 FIXTURES = Path(__file__).resolve().parents[1] / "e2e" / "fixtures"
 FIXTURE_CONFIG = FIXTURES / "betterleaks.toml"
@@ -108,6 +108,55 @@ def test_native_scan_dir_when_library_is_available() -> None:
     } <= rule_ids
     assert all(finding.file for finding in result.findings)
     assert all(finding.secret == "REDACTED" for finding in result.findings)
+
+
+@pytest.mark.native
+def test_native_scan_git_worktree_when_library_is_available(tmp_path: Path) -> None:
+    if not _native.native_library_path().exists():
+        pytest.skip("native library has not been built")
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / ".git").mkdir()
+    (repo / "app.env").write_text(
+        "PYBETTERLEAKS_GIT_0123456789ABCDEF\n",
+        encoding="utf-8",
+    )
+    (repo / ".git" / "ignored.env").write_text(
+        "PYBETTERLEAKS_GIT_IGNORED_0123456789ABCDEF\n",
+        encoding="utf-8",
+    )
+    config = BetterleaksConfig(
+        rules=[
+            Rule(
+                id="pybetterleaks-git",
+                description="Synthetic git worktree fixture",
+                regex=r"PYBETTERLEAKS_GIT_[A-Z0-9]{16}",
+                keywords=["PYBETTERLEAKS_GIT_"],
+            )
+        ]
+    )
+
+    result = scan_git(repo, config=config, redact=False)
+
+    assert result.ok, result.errors
+    assert len(result.findings) == 1
+    assert result.findings[0].rule_id == "pybetterleaks-git"
+    assert result.findings[0].secret == "PYBETTERLEAKS_GIT_0123456789ABCDEF"
+
+
+@pytest.mark.native
+def test_native_scan_git_non_repo_returns_structured_error_when_library_is_available(
+    tmp_path: Path,
+) -> None:
+    if not _native.native_library_path().exists():
+        pytest.skip("native library has not been built")
+
+    result = scan_git(tmp_path)
+
+    assert not result.ok
+    assert result.errors
+    assert result.errors[0].code == "target_not_git_repository"
 
 
 @pytest.mark.native

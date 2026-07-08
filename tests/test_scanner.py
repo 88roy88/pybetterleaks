@@ -25,6 +25,7 @@ def test_scan_text_serializes_request(monkeypatch: pytest.MonkeyPatch) -> None:
     assert captured == {
         "mode": "text",
         "target": "secret",
+        "git_scope": None,
         "request_id": None,
         "config_path": None,
         "config_toml": None,
@@ -56,6 +57,7 @@ def test_scan_dir_serializes_path_inputs(monkeypatch: pytest.MonkeyPatch, tmp_pa
 
     assert captured["mode"] == "dir"
     assert captured["target"] == str(tmp_path)
+    assert captured["git_scope"] is None
     assert captured["config_path"] == str(config_path)
     assert captured["config_toml"] is None
     assert result.ok
@@ -82,6 +84,31 @@ def test_scan_text_serializes_validation_env_vars(monkeypatch: pytest.MonkeyPatc
     assert captured["validation_env"] == {
         "PYBETTERLEAKS_BASE_URL": "https://betterleaks.invalid"
     }
+
+
+def test_scan_git_serializes_worktree_scope(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    captured = {}
+
+    def fake_scan_json(payload):
+        captured.update(payload)
+        return {
+            "ok": True,
+            "betterleaks_version": "v1.6.1",
+            "findings": [],
+            "errors": [],
+        }
+
+    monkeypatch.setattr(scanner, "_native_scan_json", fake_scan_json)
+
+    result = scanner.scan_git(tmp_path)
+
+    assert result.ok
+    assert captured["mode"] == "git"
+    assert captured["target"] == str(tmp_path)
+    assert captured["git_scope"] == "worktree"
 
 
 def test_scan_text_serializes_typed_config_toml(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -133,6 +160,11 @@ def test_scan_rejects_config_and_config_path(tmp_path: Path) -> None:
 def test_scan_rejects_non_positive_timeout() -> None:
     with pytest.raises(ValueError, match="timeout_seconds"):
         scanner.scan_text("secret", timeout_seconds=0)
+
+
+def test_scan_git_rejects_unsupported_scope(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="scope"):
+        scanner.scan_git(tmp_path, scope="tracked")
 
 
 def test_scan_text_async_serializes_request_id(monkeypatch: pytest.MonkeyPatch) -> None:

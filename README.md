@@ -102,13 +102,18 @@ Python app
 ## API
 
 ```python
-from pybetterleaks import betterleaks_version, scan_dir, scan_text
+from pybetterleaks import betterleaks_version, scan_dir, scan_git, scan_text
 
 print(betterleaks_version())
 
 text_result = scan_text("token goes here", validation=False, redact=True)
 dir_result = scan_dir(".", config_path=".betterleaks.toml")
+git_result = scan_git(".", scope="worktree", config_path=".betterleaks.toml")
 ```
+
+`scan_git` currently supports local worktree scans. It validates that the target
+is inside a Git worktree, skips `.git` metadata, and does not invoke the Git
+executable.
 
 Programmatic config uses Betterleaks' TOML concepts directly:
 

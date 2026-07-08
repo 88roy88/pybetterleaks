@@ -10,7 +10,15 @@ from .exceptions import (
     PyBetterleaksError,
 )
 from .models import Finding, ScanError, ScanResult
-from .scanner import betterleaks_version, scan_dir, scan_dir_async, scan_text, scan_text_async
+from .scanner import (
+    betterleaks_version,
+    scan_dir,
+    scan_dir_async,
+    scan_git,
+    scan_git_async,
+    scan_text,
+    scan_text_async,
+)
 
 __all__ = [
     "BetterleaksConfig",
@@ -30,6 +38,8 @@ __all__ = [
     "betterleaks_version",
     "scan_dir",
     "scan_dir_async",
+    "scan_git",
+    "scan_git_async",
     "scan_text",
     "scan_text_async",
 ]

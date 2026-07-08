@@ -30,7 +30,8 @@ criteria.
 
 ## v0.3
 
-- Git repository scan mode for local repository workflows.
+- Git worktree scan mode for local repository workflows, with tracked/staged
+  scopes planned only if they can preserve the no-runtime-subprocess promise.
 - Streaming scan result API for large scans.
 - Config coverage expansion for stable Betterleaks TOML fields.
 - Release hardening: API guides, benchmark artifacts, release templates, and

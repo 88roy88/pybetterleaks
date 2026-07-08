@@ -7,8 +7,10 @@ The public API is intentionally small and typed.
       members:
         - scan_text
         - scan_dir
+        - scan_git
         - scan_text_async
         - scan_dir_async
+        - scan_git_async
         - betterleaks_version
         - BetterleaksConfig
         - Expr

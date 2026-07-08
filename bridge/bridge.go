@@ -11,7 +11,9 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime/debug"
+	"strings"
 	"sync"
 	"time"
 	"unsafe"
@@ -32,6 +34,7 @@ const (
 type scanRequest struct {
 	Mode              string            `json:"mode"`
 	Target            string            `json:"target"`
+	GitScope          *string           `json:"git_scope,omitempty"`
 	RequestID         *string           `json:"request_id,omitempty"`
 	ConfigPath        *string           `json:"config_path,omitempty"`
 	ConfigTOML        *string           `json:"config_toml,omitempty"`
@@ -181,6 +184,8 @@ func runScan(req scanRequest) scanResponse {
 		return scanText(ctx, req)
 	case "dir":
 		return scanDir(ctx, req)
+	case "git":
+		return scanGit(ctx, req)
 	default:
 		return errorResponse("unsupported_mode", "unsupported scan mode", req.Mode)
 	}
@@ -298,6 +303,44 @@ func scanDir(ctx context.Context, req scanRequest) scanResponse {
 	return scanSource(ctx, req, detector, source, "directory_scan_failed")
 }
 
+func scanGit(ctx context.Context, req scanRequest) scanResponse {
+	scope := "worktree"
+	if req.GitScope != nil && *req.GitScope != "" {
+		scope = *req.GitScope
+	}
+	if scope != "worktree" {
+		return errorResponse("unsupported_git_scope", "unsupported git scan scope", scope)
+	}
+
+	info, err := os.Stat(req.Target)
+	if err != nil {
+		return errorResponse("target_stat_failed", "failed to inspect scan target", err.Error())
+	}
+	if !info.IsDir() {
+		return errorResponse("target_not_directory", "scan_git target is not a directory", req.Target)
+	}
+
+	repoRoot, err := findGitRoot(req.Target)
+	if err != nil {
+		return errorResponse("target_not_git_repository", "scan_git target is not inside a Git worktree", err.Error())
+	}
+
+	detector, err := newDetector(ctx, req)
+	if err != nil {
+		return errorResponse("detector_init_failed", "failed to initialize Betterleaks detector", err.Error())
+	}
+
+	source := &sources.Files{
+		ShouldSkip:      gitWorktreeSkipFunc(repoRoot, detector.SkipFunc()),
+		FollowSymlinks:  detector.FollowSymlinks,
+		MaxFileSize:     detector.MaxTargetMegaBytes * 1_000_000,
+		Path:            req.Target,
+		Sema:            detector.Sema,
+		MaxArchiveDepth: detector.MaxArchiveDepth,
+	}
+	return scanSource(ctx, req, detector, source, "git_worktree_scan_failed")
+}
+
 type textSource struct {
 	content string
 }
@@ -394,6 +437,56 @@ func loadConfig(req scanRequest) (*config.Config, error) {
 		return config.LoadFile(*req.ConfigPath)
 	}
 	return config.Default()
+}
+
+func findGitRoot(path string) (string, error) {
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+	current := filepath.Clean(absPath)
+	for {
+		gitMarker := filepath.Join(current, ".git")
+		if _, err := os.Stat(gitMarker); err == nil {
+			return current, nil
+		} else if !os.IsNotExist(err) {
+			return "", err
+		}
+
+		parent := filepath.Dir(current)
+		if parent == current {
+			return "", fmt.Errorf("no .git marker found from %s", absPath)
+		}
+		current = parent
+	}
+}
+
+func gitWorktreeSkipFunc(repoRoot string, base sources.SkipFunc) sources.SkipFunc {
+	repoRoot = filepath.Clean(repoRoot)
+	return func(attrs map[string]string) bool {
+		if base != nil && base(attrs) {
+			return true
+		}
+		path := attrs[sources.AttrPath]
+		if path == "" {
+			return false
+		}
+		return pathHasGitMetadata(repoRoot, path)
+	}
+}
+
+func pathHasGitMetadata(repoRoot string, path string) bool {
+	cleanPath := filepath.Clean(path)
+	relPath, err := filepath.Rel(repoRoot, cleanPath)
+	if err != nil {
+		relPath = cleanPath
+	}
+	for _, part := range strings.Split(filepath.ToSlash(relPath), "/") {
+		if part == ".git" {
+			return true
+		}
+	}
+	return false
 }
 
 func findingsResponse(rawFindings []report.Finding, file string) scanResponse {
