@@ -339,5 +339,5 @@ Future tasks:
 - Which config fields are worth modeling before users request them?
 - Should SBOM/signing be required before PyPI publishing, or added after the
   first public release?
-- Should release versioning stay Python-native (`0.3.0`) rather than matching
+- Should release versioning stay Python-native (`0.x.y`) rather than matching
   Betterleaks (`1.6.1`)?

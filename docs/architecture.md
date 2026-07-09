@@ -149,7 +149,7 @@ Workflows:
 
 There are two versions to track:
 
-- Python package version, for example `0.3.0`.
+- Python package version, for example `0.3.1`.
 - Bundled Betterleaks version, for example `v1.6.1`.
 
 Expose both:
