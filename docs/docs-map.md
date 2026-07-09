@@ -27,6 +27,8 @@ self-contained Python package for Betterleaks.
 - [Release checklist](release-checklist.md): maintainer checklist for wheel and
   PyPI releases.
 - [Troubleshooting](troubleshooting.md): common local build and install issues.
+- [v1.0 readiness](v1-readiness.md): release-readiness criteria and suggested
+  path to a stable `1.0.0`.
 - [Roadmap](roadmap.md): release scope, blocked musllinux work, and follow-up
   features.
 - [Backlog](backlog.md): unsupported features, future tasks, and open
@@ -42,7 +44,8 @@ self-contained Python package for Betterleaks.
 
 ## Current Status
 
-Created on 2026-07-08 and updated for v0.2 on 2026-07-09. The repository now
+Created on 2026-07-08 and updated after the first PyPI release on 2026-07-09.
+The repository now
 contains the Python SDK, native ABI bridge, typed config API, async wrappers,
 tests, Docker E2E harness, CI workflows, generated docs site, benchmarks, and
 release docs.

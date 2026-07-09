@@ -36,9 +36,9 @@ PyBetterleaks wraps the Betterleaks Go engine through a tiny `ctypes` JSON ABI
 and returns typed Python dataclasses. It is built for CI jobs, Python services,
 notebooks, agent tools, and Docker images that should stay simple.
 
-> Status: v0.2 development. The SDK, Go bridge, typed config API, async wrapper,
-> packaging tests, docs, and CI workflows are in place. Musllinux/Alpine remains
-> unsupported for the current Go `c-shared` design; see
+> Status: alpha. PyPI wheels are published for CPython 3.9-3.14 on supported
+> glibc Linux, macOS, and Windows targets. Musllinux/Alpine remains unsupported
+> for the current Go `c-shared` design; see
 > [Platforms](#platforms).
 
 ## Getting Started
@@ -172,10 +172,10 @@ Target wheel matrix:
 
 | Platform | Status |
 | --- | --- |
-| Linux x86_64 | manylinux target |
-| macOS arm64 | macOS 11+ target |
-| macOS x86_64 | macOS 11+ target |
-| Windows amd64 | win_amd64 target |
+| Linux x86_64 | manylinux wheels published |
+| macOS arm64 | macOS 11+ wheels published |
+| macOS x86_64 | macOS 11+ wheels published |
+| Windows amd64 | win_amd64 wheels published |
 | Linux arm64 | future CI capacity |
 | Alpine/musllinux | unsupported; no wheels published |
 
@@ -191,6 +191,8 @@ package. The same failure reproduces with Go `c-shared` and a Go `c-archive`
 linked into a musl shared object, so the project will not publish musllinux
 wheels until that loader path is fixed. Use Debian/Ubuntu-style glibc Python
 images, such as `python:3.12-slim`, for supported Linux runtime images.
+Track musllinux work in
+[issue #1](https://github.com/roymezan/pybetterleaks/issues/1).
 
 ## Local Development
 
@@ -213,6 +215,12 @@ Run the Docker packaging E2E:
 
 ```bash
 bash e2e/run.sh
+```
+
+Verify the published PyPI wheel in a temporary virtual environment:
+
+```bash
+uv run python scripts/pypi_smoke.py
 ```
 
 ## Benchmarks
@@ -244,3 +252,4 @@ No fake charts.
 - wheel smoke tests import the package, run `betterleaks_version()`, scan text,
   and exercise typed config plus async wrappers
 - Docker E2E installs a locally built wheel into a no-Go runtime image
+- post-publish smoke tests install from PyPI in a temporary virtual environment

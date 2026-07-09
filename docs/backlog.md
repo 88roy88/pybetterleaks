@@ -194,6 +194,10 @@ Unsupported:
 
 - Alpine/musllinux wheels
 
+Tracking issue:
+
+- <https://github.com/roymezan/pybetterleaks/issues/1>
+
 Current musllinux blocker:
 
 ```text
@@ -228,6 +232,8 @@ Possible future choices:
 - Watch macOS wheel build time; it has been slower than expected.
 - Upload benchmark output as CI artifacts.
 - Add wheel-installed benchmark smoke tests for Linux and macOS.
+- Keep post-publish PyPI smoke tests running from a temporary virtual
+  environment.
 - Keep `CIBW_SKIP: "*-musllinux_*"` until Alpine is genuinely supported.
 - Add release-note generation or a release template.
 - Confirm publish workflow uses trusted publishing only.

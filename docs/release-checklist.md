@@ -37,6 +37,8 @@ claimed target platforms.
   and run directory/text scans against fake fixture secrets.
 - `publish.yml` downloads wheel artifacts, writes `release/SHA256SUMS`, uploads
   the checksum artifact, and publishes only wheel files from `dist`.
+- The publish workflow then runs `scripts/pypi_smoke.py` to install the
+  published version from PyPI in a temporary virtual environment.
 - Publish wheels to PyPI through trusted publishing only.
 - Do not publish sdists until source builds are explicitly supported.
 
@@ -59,6 +61,7 @@ reproducible.
 
 - Verify `pip install pybetterleaks` in a clean environment.
 - Verify `pip install --only-binary=:all: pybetterleaks`.
+- Run `uv run python scripts/pypi_smoke.py --version <version>`.
 - Verify Docker install using `python:3.12-slim`.
 - Download a wheel and confirm `pybetterleaks/py.typed` is included.
 - Confirm no install-time downloads occur.

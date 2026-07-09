@@ -39,3 +39,6 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist
+
+      - name: Verify PyPI install
+        run: python scripts/pypi_smoke.py --version "${GITHUB_REF_NAME#v}" --retries 12 --retry-delay 10
