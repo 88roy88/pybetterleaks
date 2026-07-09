@@ -18,19 +18,3 @@ jobs:
           PYBETTERLEAKS_DOCKER_GHA_CACHE: "1"
           PYBETTERLEAKS_DOCKER_CACHE_SCOPE: pybetterleaks-e2e-slim
         run: bash e2e/run.sh
-
-  alpine-canary:
-    if: github.event_name == 'workflow_dispatch'
-    continue-on-error: true
-    runs-on: ubuntu-24.04
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: docker/setup-buildx-action@v3
-
-      - name: Build and run Alpine canary
-        env:
-          PYBETTERLEAKS_DOCKER_GHA_CACHE: "1"
-          PYBETTERLEAKS_DOCKER_CACHE_SCOPE: pybetterleaks-e2e-alpine
-        run: bash e2e/run-alpine.sh

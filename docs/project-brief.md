@@ -108,8 +108,8 @@ Later API:
 - Reimplementing Betterleaks in Python.
 - Automatically generating broad Go-to-Python bindings.
 - Matching every Betterleaks CLI option on day one.
-- Claiming Alpine/musllinux support while the Go shared library loader canary
-  fails.
+- Claiming Alpine/musllinux support while the Go shared library loader failure
+  remains unresolved.
 - Downloading native binaries during `pip install`.
 - Depending on a Betterleaks CLI executable at runtime.
 

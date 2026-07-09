@@ -90,8 +90,9 @@ else:
 ## Git Worktree Scans
 
 ```python
-from pybetterleaks import scan_git
+from pybetterleaks import SUPPORTED_GIT_SCOPES, scan_git
 
+print(SUPPORTED_GIT_SCOPES)
 result = scan_git(".", scope="worktree", config_path=".betterleaks.toml")
 
 for finding in result.findings:

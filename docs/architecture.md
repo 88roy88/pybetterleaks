@@ -141,7 +141,7 @@ Workflows:
 - `ci.yml`: Python lint, type check, tests, Betterleaks pin check, Go checks,
   `staticcheck`, and `govulncheck`.
 - `docs.yml`: strict MkDocs build and GitHub Pages deploy on `main`.
-- `e2e.yml`: Docker runtime-wheel E2E plus a manual Alpine canary.
+- `e2e.yml`: Docker runtime-wheel E2E on a glibc Python image.
 - `wheels.yml`: `cibuildwheel` platform builds and wheel smoke tests.
 - `publish.yml`: tag-only trusted publishing plus release checksums.
 

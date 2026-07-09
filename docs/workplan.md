@@ -287,4 +287,4 @@ v0.2 update:
 - Typed config, async wrappers, validation env var bridging, checksum tooling,
   and benchmark scaffolding moved from future work into the implementation.
 - Musllinux/Alpine remains blocked by the Go/musl `initial-exec TLS` loader
-  failure observed in the Alpine canary.
+  failure observed during Alpine experiments.

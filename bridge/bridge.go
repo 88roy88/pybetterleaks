@@ -29,6 +29,7 @@ const bundledBetterleaksVersion = "v1.6.1"
 const (
 	defaultMaxDecodeDepth  = 5
 	defaultMaxArchiveDepth = 8
+	gitScopeWorktree       = "worktree"
 )
 
 type scanRequest struct {
@@ -304,11 +305,11 @@ func scanDir(ctx context.Context, req scanRequest) scanResponse {
 }
 
 func scanGit(ctx context.Context, req scanRequest) scanResponse {
-	scope := "worktree"
+	scope := gitScopeWorktree
 	if req.GitScope != nil && *req.GitScope != "" {
 		scope = *req.GitScope
 	}
-	if scope != "worktree" {
+	if scope != gitScopeWorktree {
 		return errorResponse("unsupported_git_scope", "unsupported git scan scope", scope)
 	}
 

@@ -158,8 +158,8 @@ musl shared-library loader failure:
 initial-exec TLS resolves to dynamic definition
 ```
 
-Do not publish musllinux wheels until `bash e2e/run-alpine.sh` passes without
-runtime launch workarounds.
+Do not publish musllinux wheels without a clean loader proof that avoids runtime
+launch workarounds.
 
 ## Source Distribution Policy
 

@@ -23,7 +23,6 @@ claimed target platforms.
 - Run `uv run python benchmarks/bench.py --rounds 3 --warmups 1`.
 - Run `bash e2e/run.sh` to verify a local wheel installs in a clean runtime
   image without a Go toolchain.
-- Run `bash e2e/run-alpine.sh` before claiming musllinux/Alpine support.
 - Update README platform matrix if support changed.
 - Update `docs/betterleaks-pin.md` if the Betterleaks version changed.
 - Update release notes with the Python package version and bundled Betterleaks
@@ -43,9 +42,9 @@ claimed target platforms.
 
 ## Musllinux Gate
 
-Musllinux/Alpine is explicitly unsupported in v0.2 and must not be published as
-a wheel target until the Alpine canary passes without `LD_PRELOAD`, wrapper
-launchers, or user-side runtime changes.
+Musllinux/Alpine is explicitly unsupported and must not be published as a wheel
+target without a clean loader proof that avoids `LD_PRELOAD`, wrapper launchers,
+or user-side runtime changes.
 
 Current blocker:
 

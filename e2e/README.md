@@ -26,25 +26,22 @@ The runner checks:
 - `scan_text()` with a typed `BetterleaksConfig`
 - `scan_text_async()` with a typed `BetterleaksConfig`
 - `scan_dir()` over nested fixture files
+- `scan_git()` over a synthetic local worktree
 - structured native errors
 - timeout input validation
 - no Go runtime in the final image
 
-There is also an Alpine canary:
-
-```bash
-bash e2e/run-alpine.sh
-```
-
-That canary currently exposes a known Go + musl loader blocker for Go shared
-libraries loaded through Python `ctypes`:
+Alpine/musllinux is not a supported runtime. Previous experiments exposed a
+known Go + musl loader blocker for Go shared libraries loaded through Python
+`ctypes`:
 
 ```text
 initial-exec TLS resolves to dynamic definition
 ```
 
-Keep it as a concrete reproduction for musllinux work. Alpine/musllinux is not
-a supported runtime until that canary passes without runtime launch workarounds.
+No Alpine E2E path is maintained. Revisit musllinux only with a fresh loader
+proof that does not require `LD_PRELOAD`, wrapper launchers, or runtime
+subprocesses.
 
 The fixtures use fake secrets only. They are shaped to trigger Betterleaks rules
 without representing real credentials.

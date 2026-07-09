@@ -11,6 +11,8 @@ The public API is intentionally small and typed.
         - scan_text_async
         - scan_dir_async
         - scan_git_async
+        - GitScope
+        - SUPPORTED_GIT_SCOPES
         - betterleaks_version
         - BetterleaksConfig
         - Expr

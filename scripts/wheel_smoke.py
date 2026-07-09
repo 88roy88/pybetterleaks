@@ -10,6 +10,7 @@ from pybetterleaks import (
     Rule,
     ScanResult,
     betterleaks_version,
+    scan_git,
     scan_text,
     scan_text_async,
 )
@@ -59,8 +60,28 @@ def main() -> None:
             redact=True,
             validation=False,
         )
+        repo = Path(tmpdir) / "repo"
+        git_dir = repo / ".git"
+        git_dir.mkdir(parents=True)
+        (repo / "wheel.env").write_text(
+            f"PYBETTERLEAKS_WHEEL_TOKEN={FAKE_WHEEL_SECRET}\n",
+            encoding="utf-8",
+        )
+        (git_dir / "ignored.env").write_text(
+            f"PYBETTERLEAKS_WHEEL_TOKEN={FAKE_WHEEL_SECRET}\n",
+            encoding="utf-8",
+        )
+        git_result = scan_git(
+            repo,
+            config=config,
+            redact=True,
+            validation=False,
+        )
 
     assert_success(result, "pybetterleaks-wheel-smoke")
+    assert_success(git_result, "pybetterleaks-wheel-smoke-typed")
+    if len(git_result.findings) != 1:
+        raise AssertionError(f"expected one worktree finding, got {git_result.findings!r}")
     print(f"PyBetterleaks wheel smoke passed with Betterleaks {version}")
 
 
@@ -80,7 +101,7 @@ def assert_async_success(config: BetterleaksConfig) -> None:
 
 def assert_success(result: ScanResult, rule_id: str) -> None:
     if not result.ok:
-        raise AssertionError(f"scan_text returned errors: {result.errors!r}")
+        raise AssertionError(f"scan returned errors: {result.errors!r}")
 
     rule_ids = {finding.rule_id for finding in result.findings}
     if rule_id not in rule_ids:

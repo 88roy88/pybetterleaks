@@ -81,13 +81,13 @@ prefilters instead.
   env overlay.
 - Add synthetic benchmarks under `benchmarks/`.
 - Add release checksum generation.
-- Keep musllinux/Alpine in scope, but do not claim support while the loader
-  canary fails.
+- Keep musllinux/Alpine documented as unsupported for the current Go shared
+  library design.
 
 ## Musllinux Finding
 
-`bash e2e/run-alpine.sh` currently fails on Alpine when Python loads the Go
-shared library through `ctypes`:
+Alpine experiments failed when Python loaded the Go shared library through
+`ctypes`:
 
 ```text
 initial-exec TLS resolves to dynamic definition
@@ -125,7 +125,6 @@ uv run python benchmarks/bench.py --rounds 1 --warmups 0
 uv build --wheel
 uv run python scripts/wheel_smoke.py
 bash e2e/run.sh
-bash e2e/run-alpine.sh
 ```
 
 Use `uv build --sdist` only to inspect the source archive. It should not contain

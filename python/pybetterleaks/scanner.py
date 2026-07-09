@@ -6,7 +6,7 @@ import functools
 import os
 import uuid
 from collections.abc import Sequence
-from typing import Callable, Optional, Union
+from typing import Callable, Literal, Optional, Union
 
 from ._native import betterleaks_version as _native_betterleaks_version
 from ._native import cancel_scan_json as _native_cancel_scan_json
@@ -15,6 +15,8 @@ from .config import BetterleaksConfig
 from .models import ScanResult
 
 PathInput = Union[str, os.PathLike[str]]
+GitScope = Literal["worktree"]
+SUPPORTED_GIT_SCOPES: tuple[GitScope, ...] = ("worktree",)
 
 
 def scan_text(
@@ -109,7 +111,7 @@ def scan_dir(
 def scan_git(
     path: PathInput,
     *,
-    scope: str = "worktree",
+    scope: GitScope = "worktree",
     config: Optional[BetterleaksConfig] = None,
     config_path: Optional[PathInput] = None,
     validation: bool = False,
@@ -138,8 +140,9 @@ def scan_git(
         ValueError: If `scope` is unsupported or `timeout_seconds` is not positive.
         NativeLibraryError: If the native library cannot load or returns malformed data.
     """
-    if scope != "worktree":
-        raise ValueError("scan_git currently supports only scope='worktree'")
+    if scope not in SUPPORTED_GIT_SCOPES:
+        supported = ", ".join(repr(value) for value in SUPPORTED_GIT_SCOPES)
+        raise ValueError(f"unsupported scan_git scope {scope!r}; supported scopes: {supported}")
 
     return _scan(
         mode="git",
@@ -210,7 +213,7 @@ async def scan_dir_async(
 async def scan_git_async(
     path: PathInput,
     *,
-    scope: str = "worktree",
+    scope: GitScope = "worktree",
     config: Optional[BetterleaksConfig] = None,
     config_path: Optional[PathInput] = None,
     validation: bool = False,
@@ -244,7 +247,7 @@ def _scan(
     *,
     mode: str,
     target: str,
-    git_scope: Optional[str],
+    git_scope: Optional[GitScope],
     config: Optional[BetterleaksConfig],
     config_path: Optional[PathInput],
     validation: bool,
@@ -275,7 +278,7 @@ def _scan_payload(
     *,
     mode: str,
     target: str,
-    git_scope: Optional[str],
+    git_scope: Optional[GitScope],
     request_id: Optional[str],
     config_path: Optional[PathInput],
     config_toml: Optional[str],

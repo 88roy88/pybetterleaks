@@ -29,6 +29,8 @@ self-contained Python package for Betterleaks.
 - [Troubleshooting](troubleshooting.md): common local build and install issues.
 - [Roadmap](roadmap.md): release scope, blocked musllinux work, and follow-up
   features.
+- [Backlog](backlog.md): unsupported features, future tasks, and open
+  decisions.
 - [v0.2 plan](v0.2-plan.md): config API, async cancellation, benchmarks,
   release hardening, and acceptance criteria.
 - [v0.3 plan](v0.3-plan.md): Git workflows, streaming APIs, config coverage,

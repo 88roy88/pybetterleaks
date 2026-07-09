@@ -63,10 +63,9 @@ bash e2e/run.sh
 The final runtime stage should not contain Go. If that assertion fails, check
 the Dockerfile stage boundary before trusting the result.
 
-## Alpine E2E Fails With `initial-exec TLS`
+## Alpine/musllinux Is Unsupported
 
-`bash e2e/run-alpine.sh` currently fails when Python tries to load the Go
-shared library on musl:
+Python loading the Go shared library on musl has failed with:
 
 ```text
 initial-exec TLS resolves to dynamic definition
@@ -79,8 +78,8 @@ This has been reproduced with:
 - Python `ctypes` loading the library after process startup
 
 This is a Go + musl shared-library loader limitation, not a missing Alpine
-package. Do not publish musllinux wheels until this canary passes without
-`LD_PRELOAD`, wrapper launchers, or runtime subprocesses.
+package. Do not publish musllinux wheels without a clean loader proof that
+avoids `LD_PRELOAD`, wrapper launchers, or runtime subprocesses.
 
 ## Async Cancellation Does Not Stop Instantly
 

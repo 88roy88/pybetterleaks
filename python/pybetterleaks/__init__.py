@@ -11,6 +11,8 @@ from .exceptions import (
 )
 from .models import Finding, ScanError, ScanResult
 from .scanner import (
+    SUPPORTED_GIT_SCOPES,
+    GitScope,
     betterleaks_version,
     scan_dir,
     scan_dir_async,
@@ -21,11 +23,13 @@ from .scanner import (
 )
 
 __all__ = [
+    "SUPPORTED_GIT_SCOPES",
     "BetterleaksConfig",
     "ConfigFormatError",
     "Expr",
     "Extend",
     "Finding",
+    "GitScope",
     "NativeCallError",
     "NativeLibraryError",
     "NativeLibraryNotFoundError",

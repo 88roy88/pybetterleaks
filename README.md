@@ -38,7 +38,7 @@ notebooks, agent tools, and Docker images that should stay simple.
 
 > Status: v0.2 development. The SDK, Go bridge, typed config API, async wrapper,
 > packaging tests, docs, and CI workflows are in place. Musllinux/Alpine remains
-> a release blocker for the current Go `c-shared` design; see
+> unsupported for the current Go `c-shared` design; see
 > [Platforms](#platforms).
 
 ## Getting Started
@@ -102,9 +102,10 @@ Python app
 ## API
 
 ```python
-from pybetterleaks import betterleaks_version, scan_dir, scan_git, scan_text
+from pybetterleaks import SUPPORTED_GIT_SCOPES, betterleaks_version, scan_dir, scan_git, scan_text
 
 print(betterleaks_version())
+print(SUPPORTED_GIT_SCOPES)
 
 text_result = scan_text("token goes here", validation=False, redact=True)
 dir_result = scan_dir(".", config_path=".betterleaks.toml")
@@ -176,10 +177,10 @@ Target wheel matrix:
 | macOS x86_64 | macOS 11+ target |
 | Windows amd64 | win_amd64 target |
 | Linux arm64 | future CI capacity |
-| Alpine/musllinux | unsupported in v0.2; no wheels published |
+| Alpine/musllinux | unsupported; no wheels published |
 
-The Alpine canary currently fails while loading the Go shared library through
-Python `ctypes`:
+Previous Alpine experiments failed while loading the Go shared library through
+Python `ctypes` on musl:
 
 ```text
 initial-exec TLS resolves to dynamic definition
@@ -212,12 +213,6 @@ Run the Docker packaging E2E:
 
 ```bash
 bash e2e/run.sh
-```
-
-Run the Alpine canary:
-
-```bash
-bash e2e/run-alpine.sh
 ```
 
 ## Benchmarks

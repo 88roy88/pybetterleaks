@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import shutil
+import tempfile
 from pathlib import Path
 
 from pybetterleaks import (
@@ -10,6 +11,7 @@ from pybetterleaks import (
     ScanResult,
     betterleaks_version,
     scan_dir,
+    scan_git,
     scan_text,
     scan_text_async,
 )
@@ -21,6 +23,7 @@ CONFIG = FIXTURES / "betterleaks.toml"
 ALPHA_SECRET = "PYBETTERLEAKS_ALPHA_0A1B2C3D4E5F6A7B"
 BETA_SECRET = "PYBETTERLEAKS_BETA_8H7G6F5E4D3C2B1A"
 INLINE_SECRET = "PYBETTERLEAKS_INLINE_0123456789ABCDEF"
+GIT_SECRET = "PYBETTERLEAKS_GIT_0123456789ABCDEF"
 
 EXPECTED_DIR_RULES = {
     "pybetterleaks-alpha",
@@ -38,6 +41,7 @@ def main() -> None:
     assert_scan_text_with_typed_config()
     assert_scan_text_async_with_typed_config()
     assert_scan_dir_finds_fixture_secrets()
+    assert_scan_git_worktree_finds_only_worktree_files()
     assert_invalid_config_returns_structured_error()
     assert_scan_dir_rejects_file_targets()
     assert_timeout_input_validation()
@@ -97,6 +101,32 @@ def assert_scan_dir_finds_fixture_secrets() -> None:
     assert all(finding.secret == "REDACTED" for finding in result.findings)
 
 
+def assert_scan_git_worktree_finds_only_worktree_files() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        repo = Path(tmpdir) / "repo"
+        source_dir = repo / "src"
+        git_dir = repo / ".git"
+        source_dir.mkdir(parents=True)
+        git_dir.mkdir()
+        (source_dir / "settings.env").write_text(
+            f"PYBETTERLEAKS_GIT_TOKEN={GIT_SECRET}\n",
+            encoding="utf-8",
+        )
+        (git_dir / "ignored.env").write_text(
+            f"PYBETTERLEAKS_GIT_TOKEN={GIT_SECRET}\n",
+            encoding="utf-8",
+        )
+
+        result = scan_git(repo, config=typed_git_config(), redact=False)
+
+    assert result.ok, result.errors
+    assert _rule_ids(result) == {"pybetterleaks-git"}
+    assert len(result.findings) == 1
+    assert result.findings[0].secret == GIT_SECRET
+    assert result.findings[0].file is not None
+    assert ".git" not in Path(result.findings[0].file).parts
+
+
 def assert_invalid_config_returns_structured_error() -> None:
     result = scan_text(ALPHA_SECRET, config_path=FIXTURES / "missing-betterleaks.toml")
     assert not result.ok
@@ -129,6 +159,19 @@ def typed_config() -> BetterleaksConfig:
                 description="Synthetic inline PyBetterleaks fixture",
                 regex=r"PYBETTERLEAKS_INLINE_[A-Z0-9]{16}",
                 keywords=["PYBETTERLEAKS_INLINE_"],
+            )
+        ]
+    )
+
+
+def typed_git_config() -> BetterleaksConfig:
+    return BetterleaksConfig(
+        rules=[
+            Rule(
+                id="pybetterleaks-git",
+                description="Synthetic Git PyBetterleaks fixture",
+                regex=r"PYBETTERLEAKS_GIT_[A-Z0-9]{16}",
+                keywords=["PYBETTERLEAKS_GIT_"],
             )
         ]
     )

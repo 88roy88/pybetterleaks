@@ -21,9 +21,8 @@
 - Reproducible synthetic benchmarks with an optional Betterleaks CLI baseline.
 - Release artifact checksums.
 - Better wheel smoke coverage for typed config and async.
-- Musllinux/Alpine investigation and canary. Official wheels are unsupported in
-  v0.2 and remain blocked by the current Go/musl `initial-exec TLS` loader
-  failure.
+- Musllinux/Alpine investigation. Official wheels are unsupported and remain
+  blocked by the current Go/musl `initial-exec TLS` loader failure.
 
 See [v0.2 plan](v0.2-plan.md) for implementation details and acceptance
 criteria.

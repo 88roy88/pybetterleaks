@@ -109,6 +109,7 @@ def test_scan_git_serializes_worktree_scope(
     assert captured["mode"] == "git"
     assert captured["target"] == str(tmp_path)
     assert captured["git_scope"] == "worktree"
+    assert scanner.SUPPORTED_GIT_SCOPES == ("worktree",)
 
 
 def test_scan_text_serializes_typed_config_toml(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -164,7 +165,7 @@ def test_scan_rejects_non_positive_timeout() -> None:
 
 def test_scan_git_rejects_unsupported_scope(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="scope"):
-        scanner.scan_git(tmp_path, scope="tracked")
+        scanner.scan_git(tmp_path, scope="tracked")  # type: ignore[arg-type]
 
 
 def test_scan_text_async_serializes_request_id(monkeypatch: pytest.MonkeyPatch) -> None:
