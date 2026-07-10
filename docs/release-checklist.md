@@ -10,7 +10,8 @@ claimed target platforms.
 - Run `uv run python scripts/check_betterleaks_pin.py`.
 - Run `uv lock`.
 - Run `uv run python scripts/build_native.py`.
-- Run `uv run pytest`.
+- Run `uv run coverage run -m pytest`.
+- Run `uv run coverage report`.
 - Run `uv run ruff check .`.
 - Run `uv run mypy python`.
 - Run Go checks from `bridge/`: `gofmt`, `go test ./...`, `go vet ./...`,
@@ -30,7 +31,7 @@ claimed target platforms.
 
 ## CI Release Flow
 
-- Push a tag like `v0.3.1`.
+- Push a tag like `v0.4.0`.
 - GitHub Actions builds wheels on Linux, macOS, and Windows.
 - Every wheel must install and run `scripts/wheel_smoke.py`.
 - The Docker E2E workflow should build a local wheel, install it from `/tmp`,

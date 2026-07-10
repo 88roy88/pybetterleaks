@@ -14,6 +14,9 @@ Already implemented:
 - cooperative native cancellation by request id
 - typed dataclass models for findings, errors, and results
 - typed `BetterleaksConfig`, `Rule`, `Extend`, `Expr`, and `RequiredRule`
+- config ergonomics: namespaced `Expr` filter helpers, `Validation` helpers,
+  common `Rule` constructors, and relative `extend.path` handling
+- `Rule.entropy` compatibility serialization
 - inline TOML config handoff through `config_toml`
 - `py.typed`
 - bundled Go shared library loaded with `ctypes`
@@ -27,9 +30,9 @@ Already implemented:
 - wheel builds for supported non-musl platforms
 - release checksum tooling
 
-## Immediate Release Backlog
+## Per-Release Checklist
 
-These are the remaining release-management tasks before a public release.
+These are recurring checks before tagging and publishing a new release.
 
 - Push local commits.
 - Watch CI, Docs/Pages, E2E, and Wheels.
@@ -49,8 +52,6 @@ These are the remaining release-management tasks before a public release.
   - musllinux/Alpine caveat
 - Tag the release only after CI is green.
 - Publish to PyPI only with explicit maintainer approval.
-- Verify PyPI trusted publishing is configured.
-- Reserve/verify the PyPI package name `pybetterleaks`.
 
 ## GitHub And Project Admin
 
@@ -127,21 +128,51 @@ Open decisions:
 
 ### Config Coverage
 
-Typed config gaps to evaluate against upstream Betterleaks docs:
+Status: closed for the reviewed Betterleaks `v1.6.1` stable config surface.
 
-- global allowlists
-- per-rule allowlists, only if still supported and not deprecated
-- entropy fields
-- match-context fields
-- archive/decode/file-size tuning if upstream exposes stable config fields
-- richer validation metadata helpers
-- helper constructors for common rule shapes
-- relative `extend.path` behavior for inline configs
+Implemented:
 
-Acceptance rules:
+- direct TOML field mapping for supported top-level, `[extend]`, `[[rules]]`,
+  and `[[rules.required]]` fields
+- namespaced filter helpers:
+  - `Expr.min_entropy`
+  - `Expr.token_efficiency`
+  - `Expr.finding_contains_any`
+  - `Expr.finding_matches_any`
+  - `Expr.attribute_contains_any`
+  - `Expr.attribute_matches_any`
+  - `Expr.path_matches_any`
+  - `Expr.git_commit_in`
+  - `Expr.any_of`, `Expr.all_of`, and `Expr.not_`
+- validation helpers:
+  - `Validation.valid`
+  - `Validation.invalid`
+  - `Validation.unknown`
+  - `Validation.needs_validation`
+  - `Validation.bearer_get`
+- rule helpers:
+  - `Rule.regex_rule`
+  - `Rule.path_rule`
+  - `Rule.prefixed_token_rule`
+  - `Rule.pem_private_key_rule`
+- `Rule.entropy` as a compatibility field
+- relative `extend.path` resolution through `extend_base_path` and
+  `BetterleaksConfig.write(...)`
+- native smoke coverage that proves helper-generated configs are accepted by
+  the bundled Betterleaks bridge
 
+Deliberately unsupported:
+
+- legacy global/per-rule `allowlists` dataclasses; use modern Expr filters
+- archive/decode/file-size tuning fields until upstream exposes stable config
+  fields for them
+- provider-specific validation presets until real user demand appears
+
+Future rule for config additions:
+
+- Re-read upstream Betterleaks config docs and code before adding fields.
 - Every added field must serialize to Betterleaks-compatible TOML.
-- Native smoke tests must prove Betterleaks accepts the generated TOML.
+- Native smoke tests must prove Betterleaks accepts generated TOML.
 - Docs must map Python field names to TOML spellings.
 - Invalid combinations should fail in Python where practical.
 
@@ -323,8 +354,7 @@ Future tasks:
 - Provider wrappers for GitHub, GitLab, Hugging Face, and S3.
 - Linux arm64 wheels.
 - Alpine sidecar worker only if the no-subprocess promise changes.
-- Richer config helper APIs.
-- Better validation metadata models.
+- Provider-specific validation presets.
 - SBOM/signing/provenance as release defaults.
 - Public benchmark dashboard.
 - More polished website and examples.
@@ -336,7 +366,8 @@ Future tasks:
   subprocess-backed?
 - Should Alpine remain unsupported, or should sidecar-worker mode be allowed?
 - Should `scan_git` default stay `worktree` after more scopes exist?
-- Which config fields are worth modeling before users request them?
+- Which future upstream config fields are worth modeling before users request
+  them?
 - Should SBOM/signing be required before PyPI publishing, or added after the
   first public release?
 - Should release versioning stay Python-native (`0.x.y`) rather than matching

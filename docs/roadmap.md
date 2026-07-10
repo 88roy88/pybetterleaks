@@ -31,15 +31,41 @@ criteria.
 
 - Git worktree scan mode for local repository workflows, with tracked/staged
   scopes planned only if they can preserve the no-runtime-subprocess promise.
-- Streaming scan result API for large scans.
-- Config coverage expansion for stable Betterleaks TOML fields.
-- Release hardening: API guides, benchmark artifacts, release templates, and
-  stronger wheel smoke coverage.
+- Release hardening: PyPI trusted publishing, post-publish PyPI smoke tests,
+  v1 readiness docs, benchmark docs, and stronger wheel smoke coverage.
 
 See [v0.3 plan](v0.3-plan.md) for implementation details and open decisions.
 
+## v0.4
+
+- Config ergonomics:
+  - `Expr.min_entropy(...)`
+  - `Expr.token_efficiency(...)`
+  - allowlist-replacement helpers such as `Expr.path_matches_any(...)`,
+    `Expr.git_commit_in(...)`, and `Expr.finding_contains_any(...)`
+  - expression composition helpers: `Expr.any_of(...)`, `Expr.all_of(...)`,
+    and `Expr.not_(...)`
+  - `Validation.valid(...)`, `Validation.invalid(...)`,
+    `Validation.unknown(...)`, `Validation.needs_validation(...)`, and
+    `Validation.bearer_get(...)`
+  - `Rule.regex_rule(...)`
+  - `Rule.path_rule(...)`
+  - `Rule.prefixed_token_rule(...)`
+  - `Rule.pem_private_key_rule(...)`
+  - `Rule.entropy` compatibility serialization
+- Relative `extend.path` handling for inline configs through
+  `extend_base_path`.
+- Async cancellation hardening so cancelled Python tasks shield and drain the
+  executor future after requesting native cancellation.
+- Roadmap/backlog cleanup now that config coverage for Betterleaks `v1.6.1`
+  stable fields is closed.
+
+See [v0.4 plan](v0.4-plan.md) for implementation details and acceptance
+criteria.
+
 ## Later
 
+- Streaming scan result APIs for very large scans.
 - GitHub/GitLab/Hugging Face/S3 source wrappers.
 - Linux arm64 wheels if demand and CI capacity justify them.
 - SBOM generation.

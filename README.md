@@ -48,7 +48,8 @@ From a checkout:
 ```bash
 uv sync --all-extras --dev
 uv run python scripts/build_native.py
-uv run pytest
+uv run coverage run -m pytest
+uv run coverage report
 ```
 
 Run a scan with the bundled Betterleaks defaults:
@@ -116,25 +117,28 @@ git_result = scan_git(".", scope="worktree", config_path=".betterleaks.toml")
 is inside a Git worktree, skips `.git` metadata, and does not invoke the Git
 executable.
 
-Programmatic config uses Betterleaks' TOML concepts directly:
+Programmatic config uses Betterleaks' TOML concepts directly, with helpers for
+filters, validation results, common rule shapes, and relative `extend.path`
+handling:
 
 ```python
-from pybetterleaks import BetterleaksConfig, Expr, Rule, scan_dir
+from pybetterleaks import BetterleaksConfig, Expr, Rule, Validation, scan_dir
 
 config = BetterleaksConfig.with_defaults(
     rules=[
-        Rule(
+        Rule.regex_rule(
             id="internal-token",
             description="Internal service token",
             regex=r"INTERNAL_[A-Z0-9]{16}",
             keywords=["INTERNAL_"],
-            filter=Expr('filter.containsAny(finding["secret"], ["_TEST_"])'),
+            filter=Expr.min_entropy(3.5),
+            validate=Validation.needs_validation(provider="internal"),
         )
     ],
     disabled_rules=["generic-api-key"],
 )
 
-result = scan_dir("src", config=config)
+result = scan_dir("src", config=config, validation=True)
 ```
 
 Async wrappers run the blocking native scan in an executor and request
@@ -199,7 +203,8 @@ Track musllinux work in
 ```bash
 uv sync --all-extras --dev
 uv run python scripts/build_native.py
-uv run pytest
+uv run coverage run -m pytest
+uv run coverage report
 uv run ruff check .
 uv run mypy python
 uv run --group docs mkdocs build --strict

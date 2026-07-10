@@ -12,7 +12,7 @@ from pybetterleaks import BetterleaksConfig, Rule, scan_text
 
 config = BetterleaksConfig(
     rules=[
-        Rule(
+        Rule.regex_rule(
             id="internal-token",
             description="Internal service token",
             regex=r"INTERNAL_[A-Z0-9]{16}",
@@ -46,10 +46,13 @@ Python app
         -> Betterleaks
 ```
 
-## What v0.2 Adds
+## What It Supports Today
 
 - typed config dataclasses
+- config helpers for filters, validation results, common rules, and relative
+  `extend.path` handling
 - async scan wrappers with cooperative native cancellation
+- local Git worktree scans
 - validation env var bridging
 - self-contained platform wheels
 - bundled Betterleaks `v1.6.1`

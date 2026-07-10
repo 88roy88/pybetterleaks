@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pybetterleaks"
-version = "0.3.1"
+version = "0.4.0"
 description = "Native Python bindings for Betterleaks"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -37,6 +37,7 @@ Issues = "https://github.com/roymezan/pybetterleaks/issues"
 dev = [
   "build>=1.2.2",
   "cibuildwheel>=2.22.0",
+  "coverage>=7.6.0",
   "mypy>=1.14.0,<1.18.0",
   "pytest>=8.3.0",
   "ruff>=0.8.0",
@@ -68,6 +69,13 @@ testpaths = ["tests"]
 markers = [
   "native: tests that require a compiled Betterleaks native library",
 ]
+
+[tool.coverage.run]
+source = ["python/pybetterleaks"]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
 
 [tool.ruff]
 line-length = 100

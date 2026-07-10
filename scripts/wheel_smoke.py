@@ -2,18 +2,11 @@
 
 from __future__ import annotations
 
+import os
+import subprocess
+import sys
 import tempfile
 from pathlib import Path
-
-from pybetterleaks import (
-    BetterleaksConfig,
-    Rule,
-    ScanResult,
-    betterleaks_version,
-    scan_git,
-    scan_text,
-    scan_text_async,
-)
 
 FAKE_WHEEL_SECRET = "PYBETTERLEAKS_WHEEL_0123456789ABCDEF"
 FAKE_WHEEL_CONFIG = """
@@ -28,17 +21,76 @@ keywords = ["PYBETTERLEAKS_WHEEL_"]
 
 
 def main() -> None:
+    if len(sys.argv) > 1 and not os.environ.get("PYBETTERLEAKS_WHEEL_SMOKE_INSTALLED"):
+        run_from_wheel(Path(sys.argv[1]))
+        return
+
+    run_smoke()
+
+
+def run_from_wheel(wheel_path: Path) -> None:
+    wheel = wheel_path.resolve()
+    if not wheel.exists():
+        raise AssertionError(f"wheel does not exist: {wheel}")
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        venv = Path(tmpdir) / "venv"
+        subprocess.run([sys.executable, "-m", "venv", str(venv)], check=True)
+        python = venv_python(venv)
+        subprocess.run(
+            [
+                str(python),
+                "-m",
+                "pip",
+                "install",
+                "--no-index",
+                "--no-deps",
+                "--force-reinstall",
+                str(wheel),
+            ],
+            check=True,
+        )
+        env = os.environ.copy()
+        env.pop("PYTHONPATH", None)
+        env["PYBETTERLEAKS_WHEEL_SMOKE_INSTALLED"] = "1"
+        subprocess.run(
+            [str(python), str(Path(__file__).resolve())],
+            check=True,
+            cwd=tmpdir,
+            env=env,
+        )
+
+
+def venv_python(venv: Path) -> Path:
+    if os.name == "nt":
+        return venv / "Scripts" / "python.exe"
+    return venv / "bin" / "python"
+
+
+def run_smoke() -> None:
+    from pybetterleaks import (
+        BetterleaksConfig,
+        Expr,
+        Rule,
+        Validation,
+        betterleaks_version,
+        scan_git,
+        scan_text,
+    )
+
     version = betterleaks_version()
     if not version.startswith("v"):
         raise AssertionError(f"unexpected Betterleaks version: {version!r}")
 
     config = BetterleaksConfig(
         rules=[
-            Rule(
+            Rule.prefixed_token_rule(
                 id="pybetterleaks-wheel-smoke-typed",
                 description="Synthetic typed PyBetterleaks wheel smoke fixture",
-                regex=r"PYBETTERLEAKS_WHEEL_[A-Z0-9]{16}",
-                keywords=["PYBETTERLEAKS_WHEEL_"],
+                prefix="PYBETTERLEAKS_WHEEL_",
+                token_pattern=r"[A-Z0-9]{16}",
+                filter=Expr.finding_contains_any(["SKIP_ME"]),
+                validate=Validation.needs_validation(),
             )
         ]
     )
@@ -46,9 +98,10 @@ def main() -> None:
         FAKE_WHEEL_SECRET,
         config=config,
         redact=True,
-        validation=False,
+        validation=True,
     )
     assert_success(result, "pybetterleaks-wheel-smoke-typed")
+    assert_validation_status(result, "pybetterleaks-wheel-smoke-typed", "needs_validation")
     assert_async_success(config)
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -85,8 +138,10 @@ def main() -> None:
     print(f"PyBetterleaks wheel smoke passed with Betterleaks {version}")
 
 
-def assert_async_success(config: BetterleaksConfig) -> None:
+def assert_async_success(config) -> None:
     import asyncio
+
+    from pybetterleaks import scan_text_async
 
     result = asyncio.run(
         scan_text_async(
@@ -99,7 +154,7 @@ def assert_async_success(config: BetterleaksConfig) -> None:
     assert_success(result, "pybetterleaks-wheel-smoke-typed")
 
 
-def assert_success(result: ScanResult, rule_id: str) -> None:
+def assert_success(result, rule_id: str) -> None:
     if not result.ok:
         raise AssertionError(f"scan returned errors: {result.errors!r}")
 
@@ -109,6 +164,14 @@ def assert_success(result: ScanResult, rule_id: str) -> None:
 
     if not all(finding.secret == "REDACTED" for finding in result.findings):
         raise AssertionError("expected redacted findings by default")
+
+
+def assert_validation_status(result, rule_id: str, status: str) -> None:
+    if not any(
+        finding.rule_id == rule_id and finding.validation_status == status
+        for finding in result.findings
+    ):
+        raise AssertionError(f"expected {rule_id} validation status {status!r}")
 
 
 if __name__ == "__main__":

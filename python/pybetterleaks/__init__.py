@@ -1,7 +1,7 @@
 """Python-native bindings for Betterleaks."""
 
 from ._version import __version__
-from .config import BetterleaksConfig, Expr, Extend, RequiredRule, Rule
+from .config import BetterleaksConfig, Expr, Extend, RequiredRule, Rule, Validation
 from .exceptions import (
     ConfigFormatError,
     NativeCallError,
@@ -38,6 +38,7 @@ __all__ = [
     "Rule",
     "ScanError",
     "ScanResult",
+    "Validation",
     "__version__",
     "betterleaks_version",
     "scan_dir",

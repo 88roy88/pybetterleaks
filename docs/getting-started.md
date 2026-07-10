@@ -2,8 +2,6 @@
 
 ## Install
 
-After wheels are published:
-
 ```bash
 pip install pybetterleaks
 ```
@@ -57,7 +55,7 @@ from pybetterleaks import BetterleaksConfig, Rule, scan_text
 
 config = BetterleaksConfig(
     rules=[
-        Rule(
+        Rule.regex_rule(
             id="internal-token",
             description="Internal service token",
             regex=r"INTERNAL_[A-Z0-9]{16}",
@@ -102,7 +100,7 @@ for finding in result.findings:
 `scan_git` currently supports local worktree scans only. It validates that the
 target is inside a Git worktree, skips `.git` metadata, and does not invoke the
 Git executable. History, staged-only, and diff scans are planned for a later
-v0.3 slice.
+release.
 
 ## Async Scans
 

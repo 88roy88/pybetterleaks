@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pytest
-from pybetterleaks import BetterleaksConfig, Rule, _native
+from pybetterleaks import BetterleaksConfig, Expr, Rule, Validation, _native
 from pybetterleaks.scanner import scan_dir, scan_git, scan_text
 
 FIXTURES = Path(__file__).resolve().parents[1] / "e2e" / "fixtures"
@@ -53,6 +53,38 @@ def test_native_scan_text_with_typed_config_when_library_is_available() -> None:
     assert len(result.findings) == 1
     assert result.findings[0].rule_id == "pybetterleaks-typed"
     assert result.findings[0].secret == "PYBETTERLEAKS_TYPED_0123456789ABCDEF"
+
+
+@pytest.mark.native
+def test_native_scan_text_with_config_helpers_when_library_is_available() -> None:
+    if not _native.native_library_path().exists():
+        pytest.skip("native library has not been built")
+
+    config = BetterleaksConfig(
+        prefilter=Expr.path_matches_any([r"never-match-this-path"]),
+        rules=[
+            Rule.prefixed_token_rule(
+                id="pybetterleaks-helper",
+                description="Synthetic helper config fixture",
+                prefix="PYBETTERLEAKS_HELPER_",
+                token_pattern=r"[A-Z0-9]{16}",
+                filter=Expr.finding_contains_any(["SKIP_ME"]),
+                validate=Validation.needs_validation(),
+            )
+        ],
+    )
+
+    result = scan_text(
+        "PYBETTERLEAKS_HELPER_0123456789ABCDEF",
+        config=config,
+        validation=True,
+        redact=False,
+    )
+
+    assert result.ok, result.errors
+    assert len(result.findings) == 1
+    assert result.findings[0].rule_id == "pybetterleaks-helper"
+    assert result.findings[0].validation_status == "needs_validation"
 
 
 @pytest.mark.native

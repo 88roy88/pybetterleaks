@@ -35,8 +35,10 @@ jobs:
       - name: Mypy
         run: uv run mypy python
 
-      - name: Pytest
-        run: uv run pytest
+      - name: Pytest with coverage
+        run: |
+          uv run coverage run -m pytest
+          uv run coverage report
 
   go:
     runs-on: ubuntu-24.04

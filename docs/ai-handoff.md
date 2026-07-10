@@ -18,7 +18,7 @@ As of 2026-07-09:
 - Git branch: `main`
 - Remote: `https://github.com/roymezan/pybetterleaks.git`
 - Python package/import name: `pybetterleaks`
-- Python package version in development: `0.3.1`
+- Python package version in development: `0.4.0`
 - Bundled Betterleaks version: `v1.6.1`
 - Local Go observed after installation: `go1.26.5 darwin/arm64`
 - Python SDK, Go bridge, tests, Docker E2E, CI workflows, docs, typed config,
@@ -63,8 +63,11 @@ Modern Betterleaks config uses:
 - `[[rules]]`
 - `[[rules.required]]`
 
-Legacy allowlists are intentionally not modeled in v0.2. Use Expr filters and
-prefilters instead.
+Legacy allowlists are intentionally not modeled. Use Expr filters and
+prefilters instead. v0.4 closes the planned Betterleaks `v1.6.1` config-helper
+work by adding namespaced filter helpers, validation result helpers, common rule
+constructors, relative `extend.path` resolution, and `Rule.entropy` only as a
+compatibility field.
 
 ## v0.2 Decisions
 
@@ -115,7 +118,8 @@ wrapper launchers, or runtime subprocesses.
 ```bash
 uv sync --all-extras --dev
 uv run python scripts/build_native.py
-uv run pytest
+uv run coverage run -m pytest
+uv run coverage report
 uv run ruff check .
 uv run mypy python
 GOCACHE=/private/tmp/go-cache-pybetterleaks go test ./...

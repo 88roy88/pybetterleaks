@@ -16,6 +16,7 @@ The public API is intentionally small and typed.
         - betterleaks_version
         - BetterleaksConfig
         - Expr
+        - Validation
         - Extend
         - Rule
         - RequiredRule

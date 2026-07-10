@@ -277,7 +277,7 @@ Potential improvements:
 - Add streaming results.
 - Add Git source scanning.
 - Add GitHub/GitLab/Hugging Face/S3 source scans.
-- Add richer validation metadata.
+- Add provider-specific validation presets if users ask for them.
 - Add `pybetterleaks validate-config`.
 - Add compatibility matrix by Betterleaks version.
 - Add benchmarks against Betterleaks CLI.
@@ -288,3 +288,10 @@ v0.2 update:
   and benchmark scaffolding moved from future work into the implementation.
 - Musllinux/Alpine remains blocked by the Go/musl `initial-exec TLS` loader
   failure observed during Alpine experiments.
+
+v0.4 update:
+
+- Config helper coverage for Betterleaks `v1.6.1` stable fields moved from
+  future work into the implementation.
+- Legacy allowlist dataclasses remain intentionally unsupported; use modern
+  Expr filters instead.

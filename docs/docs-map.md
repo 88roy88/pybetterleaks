@@ -10,7 +10,8 @@ self-contained Python package for Betterleaks.
 - [Getting started](getting-started.md): install, local build, scan examples,
   Docker, and docs commands.
 - [Configuration](configuration.md): typed config models, Betterleaks TOML
-  mapping, Expr filters, and validation env vars.
+  mapping, Expr filters, validation helpers, common rule helpers, relative
+  extend paths, and validation env vars.
 - [Benchmarks](benchmarks.md): current synthetic benchmark results,
   reproduction commands, and interpretation notes.
 - [API reference](api.md): generated public Python API reference.
@@ -35,8 +36,10 @@ self-contained Python package for Betterleaks.
   decisions.
 - [v0.2 plan](v0.2-plan.md): config API, async cancellation, benchmarks,
   release hardening, and acceptance criteria.
-- [v0.3 plan](v0.3-plan.md): Git workflows, streaming APIs, config coverage,
-  and release hardening.
+- [v0.3 plan](v0.3-plan.md): Git workflows, deferred streaming/API decisions,
+  config coverage, and release hardening.
+- [v0.4 plan](v0.4-plan.md): completed config-helper sweep, async cancellation
+  hardening, release metadata, and acceptance criteria.
 - [AI handoff](ai-handoff.md): compact context for future AI agents and human
   maintainers.
 - [Docker E2E](https://github.com/roymezan/pybetterleaks/tree/main/e2e):

@@ -56,6 +56,7 @@ Docs:
 Testing:
 
 - Python unit tests cover request serialization and model parsing
+- CI enforces Python SDK line coverage at 90% or higher
 - native smoke tests cover text, directory, Git worktree, structured errors, and
   timeouts
 - Docker E2E installs a locally built wheel into a no-Go runtime image
@@ -88,9 +89,9 @@ These should not block `1.0.0`:
 
 - `0.3.x`: polish README/PyPI text, add post-publish PyPI smoke tests, and close
   obvious release-doc gaps.
-- `0.4.0`: release hardening, GitHub release notes, checksum publication,
-  artifact inspection, and SBOM/provenance decision.
-- `0.5.0`: config/API completeness pass, deprecation policy, and stronger
-  cancellation tests.
+- `0.4.0`: config ergonomics, async cancellation hardening, roadmap/backlog
+  cleanup, and release metadata refresh.
+- `0.5.0`: release hardening, GitHub release notes, checksum publication,
+  artifact inspection, deprecation policy, and SBOM/provenance decision.
 - `1.0.0rc1`: freeze API and run a full release rehearsal.
 - `1.0.0`: publish after the release candidate survives real use.

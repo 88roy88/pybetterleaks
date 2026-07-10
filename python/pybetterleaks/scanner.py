@@ -314,8 +314,14 @@ async def _run_cancellable(
     loop = asyncio.get_running_loop()
     future = loop.run_in_executor(None, call)
     try:
-        return await future
+        return await asyncio.shield(future)
     except asyncio.CancelledError:
         with contextlib.suppress(Exception):
             _native_cancel_scan_json(request_id)
+        future.add_done_callback(_consume_cancelled_scan)
         raise
+
+
+def _consume_cancelled_scan(future: asyncio.Future[ScanResult]) -> None:
+    with contextlib.suppress(asyncio.CancelledError, Exception):
+        future.exception()

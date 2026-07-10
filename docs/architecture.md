@@ -138,8 +138,8 @@ weakening the no-runtime-subprocess promise.
 
 Workflows:
 
-- `ci.yml`: Python lint, type check, tests, Betterleaks pin check, Go checks,
-  `staticcheck`, and `govulncheck`.
+- `ci.yml`: Python lint, type check, coverage-gated tests, Betterleaks pin
+  check, Go checks, `staticcheck`, and `govulncheck`.
 - `docs.yml`: strict MkDocs build and GitHub Pages deploy on `main`.
 - `e2e.yml`: Docker runtime-wheel E2E on a glibc Python image.
 - `wheels.yml`: `cibuildwheel` platform builds and wheel smoke tests.
@@ -149,7 +149,7 @@ Workflows:
 
 There are two versions to track:
 
-- Python package version, for example `0.3.1`.
+- Python package version, for example `0.4.0`.
 - Bundled Betterleaks version, for example `v1.6.1`.
 
 Expose both:
