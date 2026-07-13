@@ -4,16 +4,52 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to publish, without the leading v. Leave empty when running from a tag.
+        required: false
+        type: string
 
 permissions:
   contents: read
 
 jobs:
+  release:
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+
+    steps:
+      - name: Resolve release version
+        id: version
+        env:
+          VERSION_INPUT: ${{ github.event.inputs.version || '' }}
+        run: |
+          set -euo pipefail
+
+          version="$VERSION_INPUT"
+          if [ -z "$version" ]; then
+            version="${GITHUB_REF_NAME#v}"
+          fi
+
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([A-Za-z0-9.+-]+)?$ ]]; then
+            echo "Invalid release version: $version" >&2
+            exit 1
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+
   wheels:
+    needs: release
     uses: ./.github/workflows/wheels.yml
 
   publish:
-    needs: wheels
+    needs:
+      - release
+      - wheels
     runs-on: ubuntu-24.04
     environment: pypi
     permissions:
@@ -35,7 +71,7 @@ jobs:
           merge-multiple: true
 
       - name: Inspect wheel artifacts
-        run: python scripts/inspect_wheels.py dist --expected-version "${GITHUB_REF_NAME#v}"
+        run: python scripts/inspect_wheels.py dist --expected-version "${{ needs.release.outputs.version }}"
 
       - name: Generate checksums
         run: python scripts/checksums.py dist --output ../release/SHA256SUMS
@@ -62,15 +98,16 @@ jobs:
       - name: Publish GitHub release notes
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.release.outputs.tag }}
         run: |
-          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" release/SHA256SUMS --clobber
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" release/SHA256SUMS --clobber
           else
-            gh release create "$GITHUB_REF_NAME" release/SHA256SUMS \
+            gh release create "$TAG" release/SHA256SUMS \
               --verify-tag \
               --generate-notes \
-              --title "$GITHUB_REF_NAME"
+              --title "$TAG"
           fi
 
       - name: Post-release audit
-        run: python scripts/post_release_audit.py --version "${GITHUB_REF_NAME#v}" --retries 12 --retry-delay 10
+        run: python scripts/post_release_audit.py --version "${{ needs.release.outputs.version }}" --retries 12 --retry-delay 10

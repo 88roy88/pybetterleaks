@@ -6,6 +6,7 @@ on:
       - main
 
 permissions:
+  actions: write
   contents: write
   pull-requests: read
 
@@ -79,3 +80,22 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git tag -a "$TAG" -m "Release $TAG"
           git push origin "refs/tags/${TAG}"
+
+      - name: Dispatch publish workflow
+        if: steps.release.outputs.release == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          for attempt in 1 2 3; do
+            if gh workflow run publish.yml --ref "$TAG" -f "version=${TAG#v}"; then
+              exit 0
+            fi
+
+            echo "Publish dispatch failed on attempt ${attempt}; retrying..."
+            sleep 5
+          done
+
+          gh workflow run publish.yml --ref "$TAG" -f "version=${TAG#v}"

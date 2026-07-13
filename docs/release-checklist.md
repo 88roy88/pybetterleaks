@@ -41,7 +41,12 @@ claimed target platforms.
 - Merge the release branch to `main` after required checks and review pass.
 - The `Tag Release` workflow creates tag `vX.Y.Z` when the merged PR branch was
   `release/vX.Y.Z` and `pyproject.toml` matches.
-- The tag push triggers the publish workflow.
+- The `Tag Release` workflow dispatches `Publish` after creating the tag. This
+  explicit dispatch is required because tags pushed by `GITHUB_TOKEN` do not
+  trigger normal tag-push workflows.
+- Direct maintainer-created `v*` tag pushes still trigger the publish workflow.
+- If a tag exists but publish did not run, start it manually with
+  `gh workflow run publish.yml --ref main -f version=X.Y.Z`.
 - GitHub Actions builds wheels on Linux, macOS, and Windows.
 - Every wheel must install and run `scripts/wheel_smoke.py`.
 - The Docker E2E workflow should build a local wheel, install it from `/tmp`,
