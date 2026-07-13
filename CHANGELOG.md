@@ -14,11 +14,13 @@ Bundled Betterleaks: `v1.6.1`
 
 - Added version bump/check tooling and CI version synchronization checks.
 - Added a manual release-preparation workflow for `release/vX.Y.Z` branches.
+- Added merge-to-main release tagging for reviewed `release/vX.Y.Z` branches.
 - Added post-release audit automation for PyPI metadata, GitHub release assets,
   checksums, no-musllinux enforcement, and temporary-venv install smoke checks.
 - Added benchmark JSON/Markdown artifact output plus a CI benchmark workflow.
 - Added a clean-wheel benchmark smoke runner.
 - Added GitHub issue templates, PR template, and `SECURITY.md`.
+- Added `CODEOWNERS` for maintainer review enforcement.
 - Added a dedicated public Git scanning guide.
 - Added README visual polish with a hero asset.
 

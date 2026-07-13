@@ -38,7 +38,10 @@ claimed target platforms.
   `Prepare Release` GitHub Actions workflow.
 - Use a `release/vX.Y.Z` branch for release preparation when possible.
 - CI, E2E, Wheels, Docs, and Benchmarks should pass before tagging.
-- Push a tag like `v0.6.0`.
+- Merge the release branch to `main` after required checks and review pass.
+- The `Tag Release` workflow creates tag `vX.Y.Z` when the merged PR branch was
+  `release/vX.Y.Z` and `pyproject.toml` matches.
+- The tag push triggers the publish workflow.
 - GitHub Actions builds wheels on Linux, macOS, and Windows.
 - Every wheel must install and run `scripts/wheel_smoke.py`.
 - The Docker E2E workflow should build a local wheel, install it from `/tmp`,

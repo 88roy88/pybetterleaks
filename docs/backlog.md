@@ -35,6 +35,8 @@ Already implemented:
 - GitHub release-note generation with `SHA256SUMS` attachment
 - GitHub artifact attestations for release wheels and checksums
 - manual release preparation workflow for version bump branches
+- merge-to-main release tagging for reviewed `release/vX.Y.Z` branches
+- `CODEOWNERS` maintainer ownership for protected-branch reviews
 - version consistency checker in CI
 - post-release audit for PyPI metadata, GitHub release assets, checksums, and
   install smoke checks
@@ -74,6 +76,9 @@ These are recurring checks before tagging and publishing a new release.
 ## GitHub And Project Admin
 
 - Keep the repository under the intended owner/org.
+- Keep `main` protected with required PR review, code-owner review, strict
+  up-to-date checks, and required CI contexts.
+- Keep auto-delete merged branches enabled.
 - Confirm repository topics, description, homepage, and Pages settings.
 - Decide whether to add Discussions.
 - Decide whether to add funding/sponsor metadata.

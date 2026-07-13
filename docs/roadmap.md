@@ -80,6 +80,8 @@ criteria.
 - Release branch workflow for `release/*`.
 - Version automation that defaults to patch bumps unless maintainers choose a
   different release level.
+- Automatic tag creation when a reviewed `release/vX.Y.Z` branch is merged to
+  `main`.
 - Post-release audit automation for PyPI, GitHub release assets, checksums, and
   install smoke tests.
 - GitHub Actions maintenance, including Node deprecation cleanup where possible.
