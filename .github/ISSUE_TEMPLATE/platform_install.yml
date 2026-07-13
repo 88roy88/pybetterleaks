@@ -1,0 +1,60 @@
+name: Platform Or Install Issue
+description: Report wheel install, import, native loading, or container problems.
+title: "Install: "
+labels:
+  - packaging
+  - platform
+body:
+  - type: input
+    id: version
+    attributes:
+      label: PyBetterleaks version
+      placeholder: "0.6.0"
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: "CPython 3.12.6"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS / image
+      placeholder: "python:3.12-slim, Ubuntu 24.04, macOS 15 arm64, ..."
+    validations:
+      required: true
+  - type: dropdown
+    id: installer
+    attributes:
+      label: Installer
+      options:
+        - pip
+        - uv
+        - Docker
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Install command
+      render: bash
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Error output
+      render: text
+    validations:
+      required: true
+  - type: checkboxes
+    id: alpine
+    attributes:
+      label: Platform check
+      options:
+        - label: This is not Alpine/musllinux, or I understand Alpine is currently unsupported.
+          required: true

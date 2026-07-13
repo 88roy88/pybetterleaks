@@ -1,0 +1,26 @@
+name: Post-Release Audit
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to audit, without leading v.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Audit published release
+        run: python scripts/post_release_audit.py --version "${{ inputs.version }}" --retries 12 --retry-delay 10

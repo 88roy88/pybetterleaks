@@ -1,5 +1,7 @@
 # PyBetterleaks
 
+![PyBetterleaks: Python-native Betterleaks with bundled platform wheels and no runtime subprocess](https://raw.githubusercontent.com/roymezan/pybetterleaks/main/docs/assets/readme-hero.svg)
+
 [![PyPI](https://img.shields.io/pypi/v/pybetterleaks.svg)](https://pypi.org/project/pybetterleaks/)
 [![Python](https://img.shields.io/pypi/pyversions/pybetterleaks.svg)](https://pypi.org/project/pybetterleaks/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -115,7 +117,8 @@ git_result = scan_git(".", scope="worktree", config_path=".betterleaks.toml")
 
 `scan_git` currently supports local worktree scans. It validates that the target
 is inside a Git worktree, skips `.git` metadata, and does not invoke the Git
-executable.
+executable. The supported scope is explicit: `SUPPORTED_GIT_SCOPES ==
+("worktree",)`.
 
 Programmatic config uses Betterleaks' TOML concepts directly, with helpers for
 filters, validation results, common rule shapes, and relative `extend.path`

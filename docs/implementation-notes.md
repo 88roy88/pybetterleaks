@@ -15,7 +15,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pybetterleaks"
-version = "0.5.0"
+version = "0.6.0"
 description = "Native Python bindings for Betterleaks"
 readme = "README.md"
 requires-python = ">=3.9"

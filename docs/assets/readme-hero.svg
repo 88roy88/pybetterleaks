@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+  <title id="title">PyBetterleaks README hero</title>
+  <desc id="desc">A polished product graphic for PyBetterleaks showing Python-native secret scanning through a ctypes JSON ABI and bundled platform wheels.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1020"/>
+      <stop offset="48%" stop-color="#10251f"/>
+      <stop offset="100%" stop-color="#241327"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#172033"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#47e6b1"/>
+      <stop offset="50%" stop-color="#62b6ff"/>
+      <stop offset="100%" stop-color="#ff7ab6"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1"/>
+    </pattern>
+    <style>
+      .sans { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+      .muted { fill: #a8b3c7; }
+      .soft { fill: #dbe7ff; }
+      .white { fill: #ffffff; }
+      .green { fill: #47e6b1; }
+      .blue { fill: #62b6ff; }
+      .pink { fill: #ff7ab6; }
+      .amber { fill: #ffd166; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="640" rx="0" fill="url(#bg)"/>
+  <rect width="1280" height="640" fill="url(#grid)"/>
+  <path d="M78 510C222 420 315 583 462 494C586 419 664 438 774 498C919 578 1039 486 1202 520" fill="none" stroke="url(#accent)" stroke-width="3" stroke-opacity="0.45"/>
+  <path d="M905 82H1145C1169 82 1188 101 1188 125V190" fill="none" stroke="#62b6ff" stroke-opacity="0.35" stroke-width="2"/>
+  <path d="M158 466V352C158 331 175 314 196 314H292" fill="none" stroke="#47e6b1" stroke-opacity="0.36" stroke-width="2"/>
+
+  <g transform="translate(72 64)">
+    <rect x="0" y="0" width="72" height="72" rx="18" fill="#101827" stroke="#47e6b1" stroke-opacity="0.55"/>
+    <path d="M22 47V22h18c10 0 16 5 16 13s-6 12-16 12H31v-9h9c5 0 7-1 7-4s-2-4-7-4h-9v17z" fill="#47e6b1"/>
+    <circle cx="55" cy="20" r="5" fill="#ff7ab6"/>
+  </g>
+
+  <text x="168" y="94" class="sans white" font-size="48" font-weight="800">PyBetterleaks</text>
+  <rect x="168" y="116" width="462" height="8" rx="4" fill="url(#accent)"/>
+  <text x="72" y="180" class="sans white" font-size="66" font-weight="850">Python-native</text>
+  <text x="72" y="250" class="sans white" font-size="66" font-weight="850">secret scanning.</text>
+  <text x="74" y="292" class="sans soft" font-size="24" font-weight="650">No CLI wrapper. No Go toolchain.</text>
+  <text x="74" y="324" class="sans soft" font-size="24" font-weight="650">No runtime subprocess.</text>
+
+  <g transform="translate(72 356)" filter="url(#softShadow)">
+    <rect width="530" height="188" rx="14" fill="url(#card)" stroke="#ffffff" stroke-opacity="0.12"/>
+    <rect width="530" height="42" rx="14" fill="#0d1322"/>
+    <circle cx="24" cy="21" r="6" fill="#ff6b7a"/>
+    <circle cx="46" cy="21" r="6" fill="#ffd166"/>
+    <circle cx="68" cy="21" r="6" fill="#47e6b1"/>
+    <text x="96" y="27" class="mono muted" font-size="15">terminal</text>
+    <text x="24" y="74" class="mono green" font-size="18">$ pip install pybetterleaks</text>
+    <text x="24" y="112" class="mono soft" font-size="18">&gt;&gt;&gt; from pybetterleaks import scan_text</text>
+    <text x="24" y="146" class="mono soft" font-size="18">&gt;&gt;&gt; scan_text(secret).findings[0].secret</text>
+    <text x="24" y="180" class="mono amber" font-size="18">'REDACTED'</text>
+  </g>
+
+  <g transform="translate(666 76)" filter="url(#softShadow)">
+    <rect width="542" height="386" rx="18" fill="#0f1726" stroke="#ffffff" stroke-opacity="0.13"/>
+    <text x="30" y="48" class="sans white" font-size="24" font-weight="760">Native SDK pipeline</text>
+    <text x="30" y="78" class="sans muted" font-size="17">Typed Python API over a tiny JSON ABI.</text>
+
+    <g transform="translate(30 116)">
+      <rect width="212" height="58" rx="10" fill="#152235" stroke="#47e6b1" stroke-opacity="0.45"/>
+      <text x="18" y="36" class="sans white" font-size="18" font-weight="700">Python SDK</text>
+      <text x="258" y="36" class="mono blue" font-size="18">ctypes</text>
+      <path d="M218 29H248" stroke="#62b6ff" stroke-width="3" stroke-linecap="round"/>
+      <path d="M244 23L252 29L244 35" fill="none" stroke="#62b6ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <g transform="translate(30 196)">
+      <rect width="212" height="58" rx="10" fill="#152235" stroke="#62b6ff" stroke-opacity="0.45"/>
+      <text x="18" y="36" class="sans white" font-size="18" font-weight="700">JSON ABI</text>
+      <text x="258" y="36" class="mono pink" font-size="18">bridge</text>
+      <path d="M218 29H248" stroke="#ff7ab6" stroke-width="3" stroke-linecap="round"/>
+      <path d="M244 23L252 29L244 35" fill="none" stroke="#ff7ab6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <g transform="translate(30 276)">
+      <rect width="212" height="58" rx="10" fill="#152235" stroke="#ffd166" stroke-opacity="0.5"/>
+      <text x="18" y="36" class="sans white" font-size="18" font-weight="700">Bundled Go engine</text>
+      <text x="258" y="36" class="mono green" font-size="18">results</text>
+      <path d="M218 29H248" stroke="#47e6b1" stroke-width="3" stroke-linecap="round"/>
+      <path d="M244 23L252 29L244 35" fill="none" stroke="#47e6b1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <g transform="translate(368 116)">
+      <rect width="132" height="218" rx="14" fill="#141c2d" stroke="#ffffff" stroke-opacity="0.1"/>
+      <text x="22" y="42" class="sans green" font-size="16" font-weight="800">WHEELS</text>
+      <text x="22" y="78" class="mono soft" font-size="15">linux</text>
+      <text x="22" y="110" class="mono soft" font-size="15">macOS</text>
+      <text x="22" y="142" class="mono soft" font-size="15">windows</text>
+      <rect x="22" y="166" width="88" height="10" rx="5" fill="url(#accent)"/>
+      <text x="22" y="202" class="mono muted" font-size="13">py.typed</text>
+    </g>
+  </g>
+
+  <g transform="translate(666 490)">
+    <rect width="160" height="62" rx="12" fill="#111827" stroke="#47e6b1" stroke-opacity="0.35"/>
+    <text x="20" y="28" class="sans green" font-size="15" font-weight="800">typed results</text>
+    <text x="20" y="48" class="mono muted" font-size="13">dataclasses</text>
+    <rect x="190" width="160" height="62" rx="12" fill="#111827" stroke="#62b6ff" stroke-opacity="0.35"/>
+    <text x="210" y="28" class="sans blue" font-size="15" font-weight="800">async ready</text>
+    <text x="210" y="48" class="mono muted" font-size="13">cancellable</text>
+    <rect x="380" width="160" height="62" rx="12" fill="#111827" stroke="#ff7ab6" stroke-opacity="0.35"/>
+    <text x="400" y="28" class="sans pink" font-size="15" font-weight="800">supply chain</text>
+    <text x="400" y="48" class="mono muted" font-size="13">attested</text>
+  </g>
+</svg>

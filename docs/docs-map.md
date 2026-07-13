@@ -13,6 +13,8 @@ These pages are included in the MkDocs site:
 - [Configuration](configuration.md): typed config models, Betterleaks TOML
   mapping, Expr filters, validation helpers, common rule helpers, relative
   extend paths, and validation env vars.
+- [Git scanning](git-scanning.md): local worktree scanning, supported scope,
+  async Git scans, and deferred Git source modes.
 - [API reference](api.md): generated public Python API reference.
 - [Benchmarks](benchmarks.md): current synthetic benchmark results,
   reproduction commands, and interpretation notes.
@@ -55,6 +57,8 @@ but are excluded from the public MkDocs build with `exclude_docs`:
   hardening, release metadata, and acceptance criteria.
 - [v0.5 plan](v0.5-plan.md): release hardening, artifact inspection,
   provenance, checksums, and deprecation policy.
+- [v0.6 plan](v0.6-plan.md): release branch workflow, version automation,
+  post-release audit, benchmark artifacts, and project polish.
 - [AI handoff](ai-handoff.md): compact context for future AI agents and human
   maintainers.
 - [Docs map](docs-map.md): this repo-only index.

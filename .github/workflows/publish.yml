@@ -22,9 +22,13 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - uses: actions/download-artifact@v8
         with:
           path: dist
           pattern: wheels-*
@@ -40,13 +44,13 @@ jobs:
         run: python scripts/checksums.py dist --verify ../release/SHA256SUMS
 
       - name: Attest release artifacts
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: |
             dist/*.whl
             release/SHA256SUMS
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: release-checksums
           path: release/SHA256SUMS
@@ -54,9 +58,6 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist
-
-      - name: Verify PyPI install
-        run: python scripts/pypi_smoke.py --version "${GITHUB_REF_NAME#v}" --retries 12 --retry-delay 10
 
       - name: Publish GitHub release notes
         env:
@@ -70,3 +71,6 @@ jobs:
               --generate-notes \
               --title "$GITHUB_REF_NAME"
           fi
+
+      - name: Post-release audit
+        run: python scripts/post_release_audit.py --version "${GITHUB_REF_NAME#v}" --retries 12 --retry-delay 10

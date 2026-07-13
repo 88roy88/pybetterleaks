@@ -58,8 +58,25 @@ Run the same benchmark cases, including the Betterleaks CLI baseline:
 
 ```bash
 brew install betterleaks
-uv run python benchmarks/bench.py --cli --rounds 30 --warmups 5 --files 50 --secrets-per-file 2
-uv run python benchmarks/bench.py --cli --rounds 20 --warmups 3 --files 500 --secrets-per-file 2
+uv run python benchmarks/bench.py \
+  --cli \
+  --subprocess-wrapper \
+  --rounds 30 \
+  --warmups 5 \
+  --files 50 \
+  --secrets-per-file 2 \
+  --json-output benchmark-results/local-50.json \
+  --markdown-output benchmark-results/local-50.md
+
+uv run python benchmarks/bench.py \
+  --cli \
+  --subprocess-wrapper \
+  --rounds 20 \
+  --warmups 3 \
+  --files 500 \
+  --secrets-per-file 2 \
+  --json-output benchmark-results/local-500.json \
+  --markdown-output benchmark-results/local-500.md
 ```
 
 Expected output shape:
@@ -77,6 +94,10 @@ To use a specific CLI binary instead of the one on `PATH`, pass `--cli-path`:
 ```bash
 uv run python benchmarks/bench.py --cli --cli-path /path/to/betterleaks
 ```
+
+CI runs a smaller benchmark and uploads JSON/Markdown artifacts from
+`benchmark-results/`. It also builds a local wheel and runs a tiny
+wheel-installed benchmark smoke test from a temporary virtual environment.
 
 ## How To Read These Numbers
 
@@ -147,5 +168,4 @@ for CI and service use, and future changes have a simple regression check.
 
 - Add cold-start versus warm-call measurements.
 - Add larger repository-shaped fixtures with mixed file types.
-- Add wheel-installed benchmarks from a clean virtual environment.
-- Track results per platform in CI artifacts once the data is stable.
+- Track results across supported wheel platforms once the data is stable.

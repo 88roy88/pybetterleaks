@@ -1,0 +1,49 @@
+name: Bug Report
+description: Report a PyBetterleaks behavior bug or regression.
+title: "Bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this. Please use synthetic secrets in examples.
+  - type: input
+    id: version
+    attributes:
+      label: PyBetterleaks version
+      placeholder: "0.6.0"
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform
+      placeholder: "macOS arm64, Windows amd64, manylinux x86_64, ..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: Prefer a short Python snippet and synthetic fixtures.
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or structured errors
+      render: text

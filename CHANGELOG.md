@@ -4,6 +4,68 @@ All notable PyBetterleaks release notes live here. PyBetterleaks uses its own
 Python package version and documents the bundled Betterleaks engine version
 separately.
 
+## 0.6.0 - Unreleased
+
+Release theme: release automation, benchmark artifacts, and project polish.
+
+Bundled Betterleaks: `v1.6.1`
+
+### Added
+
+- Added version bump/check tooling and CI version synchronization checks.
+- Added a manual release-preparation workflow for `release/vX.Y.Z` branches.
+- Added post-release audit automation for PyPI metadata, GitHub release assets,
+  checksums, no-musllinux enforcement, and temporary-venv install smoke checks.
+- Added benchmark JSON/Markdown artifact output plus a CI benchmark workflow.
+- Added a clean-wheel benchmark smoke runner.
+- Added GitHub issue templates, PR template, and `SECURITY.md`.
+- Added a dedicated public Git scanning guide.
+- Added README visual polish with a hero asset.
+
+### Changed
+
+- Refreshed GitHub Actions major versions to reduce Node runtime deprecation
+  noise.
+- Release branches now run heavier CI gates before tags are cut.
+- The publish workflow now performs the full post-release audit after GitHub
+  release notes and `SHA256SUMS` are available.
+
+## 0.5.0 - 2026-07-13
+
+Release theme: publish-path hardening.
+
+Bundled Betterleaks: `v1.6.1`
+
+### Added
+
+- Added wheel artifact inspection before publishing.
+- Added wheel checks that reject accidental universal wheels and unsupported
+  musllinux wheels.
+- Added wheel checks that verify each artifact includes `py.typed` and exactly
+  one packaged native library for the target platform.
+- Added checksum generation and verification for release artifacts.
+- Added GitHub generated release notes with `SHA256SUMS` upload.
+- Added GitHub artifact attestations for wheels and checksums.
+- Added grouped GitHub release-note configuration through `.github/release.yml`.
+- Added release-tool unit tests with synthetic wheel artifacts and checksum
+  fixtures.
+- Added supply-chain and deprecation-policy documentation.
+
+### Changed
+
+- Built the native bridge before Python coverage in CI so native smoke tests are
+  included in the coverage gate.
+- Ran wheel artifact inspection after `cibuildwheel` and again in the publish
+  workflow before PyPI upload.
+- Hardened the publish workflow around artifact checks before PyPI upload.
+- Verified generated `SHA256SUMS` before publishing or attaching release assets.
+- Kept PyPI publishing tokenless through trusted publishing.
+
+### Notes
+
+- v0.5 deliberately kept sdists, musllinux/Alpine wheels, and SBOM generation
+  out of scope.
+
 ## 0.4.0 - 2026-07-10
 
 Release theme: config ergonomics and async cancellation polish.

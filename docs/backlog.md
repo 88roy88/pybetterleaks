@@ -34,6 +34,15 @@ Already implemented:
 - wheel artifact inspection in CI and publish workflows
 - GitHub release-note generation with `SHA256SUMS` attachment
 - GitHub artifact attestations for release wheels and checksums
+- manual release preparation workflow for version bump branches
+- version consistency checker in CI
+- post-release audit for PyPI metadata, GitHub release assets, checksums, and
+  install smoke checks
+- benchmark JSON/Markdown artifacts in CI
+- wheel-installed benchmark smoke tests
+- issue templates, PR template, and `SECURITY.md`
+- README hero visual
+- public Git scanning guide
 - documented deprecation policy
 - documented supply-chain and SBOM decision
 
@@ -66,10 +75,7 @@ These are recurring checks before tagging and publishing a new release.
 
 - Keep the repository under the intended owner/org.
 - Confirm repository topics, description, homepage, and Pages settings.
-- Decide whether to add issue templates.
-- Decide whether to add PR templates.
 - Decide whether to add Discussions.
-- Decide whether to add a security policy.
 - Decide whether to add funding/sponsor metadata.
 
 ## Public API Backlog
@@ -225,7 +231,6 @@ Supported targets:
 Future platform tasks:
 
 - Linux arm64 wheels if CI capacity and demand justify them.
-- Wheel-installed benchmark smoke tests.
 - Confirm wheel tags are never `py3-none-any`.
 - Keep sdists disabled or clearly source-build-only.
 

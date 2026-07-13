@@ -110,8 +110,8 @@ for finding in result.findings:
 
 `scan_git` currently supports local worktree scans only. It validates that the
 target is inside a Git worktree, skips `.git` metadata, and does not invoke the
-Git executable. History, staged-only, and diff scans are planned for a later
-release.
+Git executable. See [Git Scanning](git-scanning.md) for scope details and
+deferred Git modes.
 
 ## Async Scans
 

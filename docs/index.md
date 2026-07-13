@@ -69,6 +69,7 @@ library design.
 
 - [Getting Started](getting-started.md)
 - [Configuration](configuration.md)
+- [Git Scanning](git-scanning.md)
 - [API Reference](api.md)
 - [Benchmarks](benchmarks.md)
 - [Troubleshooting](troubleshooting.md)

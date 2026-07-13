@@ -2,6 +2,9 @@ name: Wheels
 
 on:
   pull_request:
+  push:
+    branches:
+      - "release/**"
   workflow_dispatch:
   workflow_call:
 
@@ -24,24 +27,24 @@ jobs:
             cibw_archs: AMD64
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
           cache-dependency-glob: uv.lock
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         if: runner.os != 'Linux'
         with:
           go-version: "1.26.5"
           cache-dependency-path: bridge/go.sum
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         if: runner.os == 'Linux'
         with:
           path: .cache/go-dist
@@ -71,7 +74,7 @@ jobs:
       - name: Inspect wheel artifacts
         run: uv run python scripts/inspect_wheels.py wheelhouse
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: wheels-${{ matrix.os }}-${{ matrix.cibw_archs }}
           path: wheelhouse/*.whl

@@ -1,0 +1,78 @@
+name: Prepare Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      part:
+        description: Version part to bump when version is omitted.
+        required: true
+        type: choice
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
+      version:
+        description: Explicit version, such as 0.6.0. Leave blank to bump by part.
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Bump project version
+        id: bump
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            uv run python scripts/bump_version.py --version "${{ inputs.version }}"
+          else
+            uv run python scripts/bump_version.py --part "${{ inputs.part }}"
+          fi
+          version="$(python -c 'import pathlib, re; text = pathlib.Path("pyproject.toml").read_text(); print(re.search(r"^version = \"([^\"]+)\"$", text, re.M).group(1))')"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Create release branch
+        env:
+          VERSION: ${{ steps.bump.outputs.version }}
+        run: |
+          branch="release/v${VERSION}"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+            echo "Release branch already exists: $branch" >&2
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add pyproject.toml python/pybetterleaks/_version.py uv.lock docs/ai-handoff.md docs/implementation-notes.md
+          git commit -m "Prepare pybetterleaks ${VERSION}"
+          git push --set-upstream origin "$branch"
+
+      - name: Open release PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.bump.outputs.version }}
+        run: |
+          gh pr create \
+            --base main \
+            --head "release/v${VERSION}" \
+            --title "Release v${VERSION}" \
+            --body "Release preparation branch for pybetterleaks v${VERSION}."

@@ -1,0 +1,62 @@
+name: Benchmarks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - "release/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.26.5"
+          cache-dependency-path: bridge/go.sum
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Build native bridge
+        run: uv run python scripts/build_native.py
+
+      - name: Run checkout benchmark
+        run: |
+          mkdir -p benchmark-results
+          uv run python benchmarks/bench.py \
+            --rounds 3 \
+            --warmups 1 \
+            --files 25 \
+            --secrets-per-file 2 \
+            --subprocess-wrapper \
+            --json-output benchmark-results/checkout-benchmark.json \
+            --markdown-output benchmark-results/checkout-benchmark.md
+
+      - name: Build local wheel
+        run: uv build --wheel --out-dir wheelhouse
+
+      - name: Run wheel-installed benchmark smoke
+        run: uv run python scripts/wheel_benchmark_smoke.py --wheel wheelhouse --output-dir benchmark-results
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: benchmark-results-${{ runner.os }}
+          path: benchmark-results/

@@ -75,6 +75,20 @@ criteria.
 See [v0.5 plan](v0.5-plan.md) for implementation details and acceptance
 criteria.
 
+## v0.6
+
+- Release branch workflow for `release/*`.
+- Version automation that defaults to patch bumps unless maintainers choose a
+  different release level.
+- Post-release audit automation for PyPI, GitHub release assets, checksums, and
+  install smoke tests.
+- GitHub Actions maintenance, including Node deprecation cleanup where possible.
+- CI benchmark artifacts and wheel-installed benchmark smoke tests.
+- Project hygiene files: issue templates, PR template, and `SECURITY.md`.
+- README visual polish and dedicated Git scanning docs.
+
+See [v0.6 plan](v0.6-plan.md) for implementation details and open decisions.
+
 ## Later
 
 - Streaming scan result APIs for very large scans.

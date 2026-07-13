@@ -18,7 +18,7 @@ As of 2026-07-09:
 - Git branch: `main`
 - Remote: `https://github.com/roymezan/pybetterleaks.git`
 - Python package/import name: `pybetterleaks`
-- Python package version in development: `0.5.0`
+- Python package version in development: `0.6.0`
 - Bundled Betterleaks version: `v1.6.1`
 - Local Go observed after installation: `go1.26.5 darwin/arm64`
 - Python SDK, Go bridge, tests, Docker E2E, CI workflows, docs, typed config,

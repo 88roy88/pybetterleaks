@@ -1,0 +1,39 @@
+name: Feature Request
+description: Suggest a public API, packaging, platform, or documentation improvement.
+title: "Feature: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What workflow would this improve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed shape
+      description: Include a small API sketch when relevant.
+      render: python
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Python API
+        - Native bridge
+        - Packaging/wheels
+        - Docs
+        - CI/release
+        - Benchmarks
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Extra context

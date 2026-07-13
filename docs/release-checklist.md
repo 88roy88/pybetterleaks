@@ -8,6 +8,7 @@ claimed target platforms.
 - Confirm package name ownership and approval.
 - Confirm bundled Betterleaks version in `bridge/go.mod`.
 - Run `uv run python scripts/check_betterleaks_pin.py`.
+- Run `uv run python scripts/bump_version.py --check`.
 - Run `uv lock`.
 - Run `uv run python scripts/build_native.py`.
 - Run `uv run coverage run -m pytest`.
@@ -21,8 +22,7 @@ claimed target platforms.
 - Run `uv run python scripts/inspect_wheels.py <wheel-dir>`.
 - Run `uv run python scripts/checksums.py <wheel-dir> --output ../release/SHA256SUMS`.
 - Run `uv run python scripts/checksums.py <wheel-dir> --verify ../release/SHA256SUMS`.
-- Run `uv build --sdist` and confirm the sdist does not include generated native
-  libraries.
+- Do not publish sdists until source builds are explicitly supported.
 - Run native smoke tests with the compiled library present.
 - Run `uv run python benchmarks/bench.py --rounds 3 --warmups 1`.
 - Run `bash e2e/run.sh` to verify a local wheel installs in a clean runtime
@@ -34,7 +34,11 @@ claimed target platforms.
 
 ## CI Release Flow
 
-- Push a tag like `v0.5.0`.
+- Prepare release changes with either a normal local edit or the manual
+  `Prepare Release` GitHub Actions workflow.
+- Use a `release/vX.Y.Z` branch for release preparation when possible.
+- CI, E2E, Wheels, Docs, and Benchmarks should pass before tagging.
+- Push a tag like `v0.6.0`.
 - GitHub Actions builds wheels on Linux, macOS, and Windows.
 - Every wheel must install and run `scripts/wheel_smoke.py`.
 - The Docker E2E workflow should build a local wheel, install it from `/tmp`,
@@ -42,10 +46,11 @@ claimed target platforms.
 - `publish.yml` downloads wheel artifacts, inspects them, writes
   `release/SHA256SUMS`, verifies those checksums, attests the release artifacts,
   uploads the checksum artifact, and publishes only wheel files from `dist`.
-- The publish workflow then runs `scripts/pypi_smoke.py` to install the
-  published version from PyPI in a temporary virtual environment.
 - The publish workflow creates or updates GitHub release notes and attaches
   `SHA256SUMS`.
+- The publish workflow then runs `scripts/post_release_audit.py` to verify PyPI
+  metadata, GitHub release assets, checksum parity, no musllinux artifacts, and
+  a temporary-venv PyPI install smoke.
 - Publish wheels to PyPI through trusted publishing only.
 - Do not publish sdists until source builds are explicitly supported.
 
@@ -69,6 +74,7 @@ reproducible.
 - Verify `pip install pybetterleaks` in a clean environment.
 - Verify `pip install --only-binary=:all: pybetterleaks`.
 - Run `uv run python scripts/pypi_smoke.py --version <version>`.
+- Run `uv run python scripts/post_release_audit.py --version <version>`.
 - Verify Docker install using `python:3.12-slim`.
 - Download a wheel and confirm `pybetterleaks/py.typed` is included.
 - Confirm no install-time downloads occur.

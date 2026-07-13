@@ -132,9 +132,18 @@ def scan_git(
 ) -> ScanResult:
     """Scan a local Git worktree without invoking the Git executable.
 
+    Example:
+        ```python
+        from pybetterleaks import scan_git
+
+        result = scan_git(".", scope="worktree", config_path=".betterleaks.toml")
+        for finding in result.findings:
+            print(f"{finding.file}:{finding.line} {finding.rule_id}")
+        ```
+
     Args:
         path: Repository root or a directory inside a Git worktree.
-        scope: Git scan scope. v0.3 initially supports only `"worktree"`.
+        scope: Git scan scope. Currently supports only `"worktree"`.
         config: Optional typed Betterleaks config. Mutually exclusive with `config_path`.
         config_path: Optional path to a Betterleaks configuration file.
         validation: Enable Betterleaks validation when supported by the rule.
