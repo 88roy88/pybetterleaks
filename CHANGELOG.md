@@ -4,7 +4,29 @@ All notable PyBetterleaks release notes live here. PyBetterleaks uses its own
 Python package version and documents the bundled Betterleaks engine version
 separately.
 
-## 0.6.0 - Unreleased
+## 0.6.1 - 2026-07-13
+
+Release theme: Betterleaks pin verification and release-flow hardening.
+
+Bundled Betterleaks: `v1.6.1`
+
+### Added
+
+- Added exact checksum verification for the pinned Betterleaks Go module and
+  its `go.mod` entry.
+- Added unit coverage for Betterleaks pin drift, missing checksum lines,
+  checksum mismatches, and unrecorded Betterleaks upgrades.
+
+### Changed
+
+- The publish workflow can now be dispatched manually with an explicit version.
+- The release-tag workflow now dispatches publishing after creating a tag,
+  avoiding GitHub's ignored workflow-created tag-push events.
+- Hardened post-release audit retries so PyPI metadata and checksum validation
+  are retried together while PyPI propagates new files.
+- Documented the exact Betterleaks checksum pin in the supply-chain docs.
+
+## 0.6.0 - 2026-07-13
 
 Release theme: release automation, benchmark artifacts, and project polish.
 

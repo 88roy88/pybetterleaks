@@ -10,8 +10,16 @@ accidentally in the wrong shape.
 - Go module checksums are committed in `bridge/go.sum`.
 - The bundled Betterleaks version is documented in
   [Betterleaks Pin](betterleaks-pin.md).
-- CI checks that the Go module pin and bridge version constant stay aligned.
+- CI checks that the Go module pin, expected `go.sum` checksums, and bridge
+  version constant stay aligned.
 - Release wheels are built by GitHub Actions, not by a developer laptop.
+
+The Betterleaks pin check verifies exact expected checksums for both the module
+archive and its `go.mod` metadata before release:
+
+```bash
+uv run python scripts/check_betterleaks_pin.py
+```
 
 ## Wheel Guarantees
 
@@ -68,4 +76,3 @@ Do not publish:
 - musllinux wheels, until the Go + musl shared-library loader issue is solved
 - developer-machine wheels as official releases
 - artifacts that require install-time native downloads
-

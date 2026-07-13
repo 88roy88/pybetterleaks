@@ -7,7 +7,8 @@ claimed target platforms.
 
 - Confirm package name ownership and approval.
 - Confirm bundled Betterleaks version in `bridge/go.mod`.
-- Run `uv run python scripts/check_betterleaks_pin.py`.
+- Run `uv run python scripts/check_betterleaks_pin.py` to verify the
+  Betterleaks version and exact module checksums.
 - Run `uv run python scripts/bump_version.py --check`.
 - Run `uv lock`.
 - Run `uv run python scripts/build_native.py`.

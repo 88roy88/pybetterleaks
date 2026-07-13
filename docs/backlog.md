@@ -31,6 +31,7 @@ Already implemented:
 - wheel builds for supported non-musl platforms
 - release checksum tooling
 - release checksum verification
+- Betterleaks module checksum pin verification
 - wheel artifact inspection in CI and publish workflows
 - GitHub release-note generation with `SHA256SUMS` attachment
 - GitHub artifact attestations for release wheels and checksums
@@ -328,12 +329,13 @@ Current baseline:
 - GitHub artifact attestations cover release wheels and checksums.
 - PyPI trusted publishing is tokenless.
 - Wheel artifacts are inspected before upload and before publish.
+- The bundled Betterleaks module and `go.mod` checksums are verified against
+  expected values before release.
 
 Future tasks:
 
 - SBOM generation before `1.0.0` or before publishing sdists.
 - Artifact signing beyond GitHub artifact attestations if users need it.
-- Verify Betterleaks module checksum before release.
 - Document bundled Betterleaks version in every release note.
 - Re-run full Python, Go, wheel, and Docker E2E gates before tags.
 
