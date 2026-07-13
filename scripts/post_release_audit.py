@@ -32,18 +32,7 @@ class GitHubAsset:
 def main() -> None:
     args = parse_args()
 
-    pypi_data = retry(
-        lambda: fetch_json(f"https://pypi.org/pypi/{args.package}/json"),
-        retries=args.retries,
-        delay=args.retry_delay,
-        label="PyPI metadata",
-    )
-    release_files = retry(
-        lambda: validate_pypi_release(pypi_data, version=args.version),
-        retries=args.retries,
-        delay=args.retry_delay,
-        label=f"PyPI release {args.version}",
-    )
+    checksum_entries: dict[str, str] | None = None
 
     if not args.skip_github:
         github_release = retry(
@@ -57,7 +46,17 @@ def main() -> None:
         checksum_asset = find_asset(github_release, "SHA256SUMS")
         checksum_text = fetch_text(checksum_asset.download_url)
         checksum_entries = parse_checksums(checksum_text)
-        validate_checksums(release_files, checksum_entries)
+
+    retry(
+        lambda: validate_pypi_release_snapshot(
+            fetch_json(f"https://pypi.org/pypi/{args.package}/json"),
+            version=args.version,
+            checksum_entries=checksum_entries,
+        ),
+        retries=args.retries,
+        delay=args.retry_delay,
+        label=f"PyPI release {args.version}",
+    )
 
     if not args.skip_install_smoke:
         run_pypi_smoke(args.version, package=args.package)
@@ -142,6 +141,18 @@ def validate_pypi_release(data: dict[str, Any], *, version: str) -> list[Release
     ]
     if not wheel_files:
         raise ValueError(f"PyPI release {version} has no wheels")
+    return release_files
+
+
+def validate_pypi_release_snapshot(
+    data: dict[str, Any],
+    *,
+    version: str,
+    checksum_entries: dict[str, str] | None = None,
+) -> list[ReleaseFile]:
+    release_files = validate_pypi_release(data, version=version)
+    if checksum_entries is not None:
+        validate_checksums(release_files, checksum_entries)
     return release_files
 
 

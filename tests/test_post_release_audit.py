@@ -53,6 +53,28 @@ def test_validate_pypi_release_rejects_musllinux_wheels() -> None:
         )
 
 
+def test_validate_pypi_release_snapshot_checks_complete_checksum_set() -> None:
+    with pytest.raises(ValueError, match="non-PyPI"):
+        post_release_audit.validate_pypi_release_snapshot(
+            {
+                "releases": {
+                    "0.6.0": [
+                        {
+                            "filename": "pybetterleaks-0.6.0-py3-none-manylinux_2_28_x86_64.whl",
+                            "packagetype": "bdist_wheel",
+                            "digests": {"sha256": SHA_1},
+                        }
+                    ]
+                }
+            },
+            version="0.6.0",
+            checksum_entries={
+                "pybetterleaks-0.6.0-py3-none-manylinux_2_28_x86_64.whl": SHA_1,
+                "pybetterleaks-0.6.0-py3-none-win_amd64.whl": SHA_2,
+            },
+        )
+
+
 def test_parse_checksums_rejects_paths() -> None:
     with pytest.raises(ValueError, match="must not contain paths"):
         post_release_audit.parse_checksums(f"{SHA_1}  dist/artifact.whl\n")
